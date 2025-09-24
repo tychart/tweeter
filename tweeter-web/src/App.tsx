@@ -16,6 +16,7 @@ import FolloweesScroller from "./components/mainLayout/FolloweesScroller";
 import FollowersScroller from "./components/mainLayout/FollowersScroller";
 import FeedScroller from "./components/mainLayout/FeedScroller";
 import StoryScroller from "./components/mainLayout/StoryScroller";
+import UserItemScroller from "./components/mainLayout/UserItemScroller";
 
 const App = () => {
   const { currentUser, authToken } = useContext(UserInfoContext);
@@ -41,6 +42,16 @@ const App = () => {
 const AuthenticatedRoutes = () => {
   const { displayedUser } = useContext(UserInfoContext);
 
+  const loadMoreFollowees = async (
+      authToken: AuthToken,
+      userAlias: string,
+      pageSize: number,
+      lastFollowee: User | null
+    ): Promise<[User[], boolean]> => {
+      // TODO: Replace with the result of calling server
+      return FakeData.instance.getPageOfUsers(lastFollowee, pageSize, userAlias);
+    };
+
   return (
     <Routes>
       <Route element={<MainLayout />}>
@@ -48,7 +59,7 @@ const AuthenticatedRoutes = () => {
         <Route path="feed/:displayedUser" element={<FeedScroller />} />
         <Route path="story/:displayedUser" element={<StoryScroller />} />
         <Route path="followees/:displayedUser" element={<FolloweesScroller />} />
-        <Route path="followers/:displayedUser" element={<FollowersScroller />} />
+        <Route path="followers/:displayedUser" element={<UserItemScroller itemDescription="followers" featurePath="/followers" loadMore={} />} />
         <Route path="logout" element={<Navigate to="/login" />} />
         <Route path="*" element={<Navigate to={`/feed/${displayedUser!.alias}`} />} />
       </Route>
