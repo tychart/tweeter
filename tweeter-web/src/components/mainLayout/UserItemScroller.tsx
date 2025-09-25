@@ -6,10 +6,9 @@ import {
 import { useState, useEffect } from "react";
 import InfiniteScroll from "react-infinite-scroll-component";
 import { AuthToken, FakeData, User } from "tweeter-shared";
-import { ToastActionsContext } from "../toaster/ToastContexts";
 import { useParams } from "react-router-dom";
-import { ToastType } from "../toaster/Toast";
 import UserItem from "../userItem/UserItem";
+import { useMessageActions } from "../toaster/MessageHooks";
 
 export const PAGE_SIZE = 10;
 
@@ -21,11 +20,11 @@ interface Props {
     userAlias: string,
     pageSize: number,
     lastFollower: User | null
-   ) => Promise<[User[], boolean]>;
+  ) => Promise<[User[], boolean]>;
 }
 
 const UserItemScroller = (props: Props) => {
-  const { displayToast } = useContext(ToastActionsContext);
+  const { displayErrorMessage } = useMessageActions();
   const [items, setItems] = useState<User[]>([]);
   const [hasMoreItems, setHasMoreItems] = useState(true);
   const [lastItem, setLastItem] = useState<User | null>(null);
@@ -85,10 +84,8 @@ const UserItemScroller = (props: Props) => {
       setLastItem(() => newItems[newItems.length - 1]);
       addItems(newItems);
     } catch (error) {
-      displayToast(
-        ToastType.Error,
-        `Failed to load ${props.itemDescription} because of exception: ${error}`,
-        0
+      displayErrorMessage(
+        `Failed to load ${props.itemDescription} because of exception: ${error}`
       );
     }
   };
@@ -114,6 +111,5 @@ const UserItemScroller = (props: Props) => {
     </div>
   );
 };
-
 
 export default UserItemScroller;

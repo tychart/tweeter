@@ -1,24 +1,16 @@
 // Talks about at 1:04:30 - 1:05:15
 
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { useContext } from "react";
 import { OverlayTrigger, Tooltip } from "react-bootstrap";
-import { ToastType } from "../toaster/Toast";
-import { ToastActionsContext } from "../toaster/ToastContexts";
+import { useMessageActions } from "../toaster/MessageHooks";
 
 // Will contain lines 50 - 135 of AuthenticationFormLayout.tsx
 
 const OAuth = () => {
-  const { displayToast } = useContext(ToastActionsContext);
+  const { displayInfoMessage } = useMessageActions();
 
   const displayInfoMessageWithDarkBackground = (message: string): void => {
-    displayToast(
-      ToastType.Info,
-      message,
-      3000,
-      undefined,
-      "text-white bg-primary"
-    );
+    displayInfoMessage(message, 3000, "text-white bg-primary");
   };
 
   return (
