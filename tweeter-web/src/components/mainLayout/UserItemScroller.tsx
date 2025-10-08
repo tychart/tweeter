@@ -5,6 +5,10 @@ import { useParams } from "react-router-dom";
 import UserItem from "../userItem/UserItem";
 import { useMessageActions } from "../toaster/MessageHooks";
 import { useUserInfo, useUserInfoActions } from "../userInfo/UserInfoHooks";
+import {
+  FolloweePresenter,
+  FolloweeView,
+} from "../../presenter/FolloweePresenter";
 
 export const PAGE_SIZE = 10;
 
@@ -39,6 +43,12 @@ const UserItemScroller = (props: Props) => {
     // TODO: Replace with the result of calling server
     return FakeData.instance.findUserByAlias(alias);
   };
+
+  const listener: FolloweeView = {
+    //
+  };
+
+  const presenter = new FolloweePresenter(listener);
 
   // Update the displayed user context variable whenever the displayedUser url parameter changes. This allows browser forward and back buttons to work correctly.
   useEffect(() => {
