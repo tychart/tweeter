@@ -1,12 +1,13 @@
 import "./Login.css";
 import "bootstrap/dist/css/bootstrap.css";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import AuthenticationFormLayout from "../AuthenticationFormLayout";
 import { AuthToken, FakeData, User } from "tweeter-shared";
 import AuthenticationFields from "../AuthenticationFields";
 import { useMessageActions } from "../../toaster/MessageHooks";
 import { useUserInfoActions } from "../../userInfo/UserInfoHooks";
+import { LoginPresenter, LoginView } from "../../../presenter/LoginPresenter";
 
 interface Props {
   originalUrl?: string;
@@ -15,58 +16,63 @@ interface Props {
 const Login = (props: Props) => {
   const [alias, setAlias] = useState("");
   const [password, setPassword] = useState("");
-  const [rememberMe, setRememberMe] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
+  // const [rememberMe, setRememberMe] = useState(false);
+  // const [isLoading, setIsLoading] = useState(false);
 
   const navigate = useNavigate();
   const { updateUserInfo } = useUserInfoActions();
   const { displayErrorMessage } = useMessageActions();
 
+  const listener: LoginView = {
+    displayErrorMessage: displayErrorMessage,
+    updateUserInfo: updateUserInfo,
+    navigate: navigate,
+    originalUrl: props.originalUrl,
+  };
+
+  const presenterRef = useRef<LoginPresenter>(new LoginPresenter(listener));
+
   const checkSubmitButtonStatus = (): boolean => {
     return !alias || !password;
   };
 
-  const loginOnEnter = (event: React.KeyboardEvent<HTMLElement>) => {
-    if (event.key == "Enter" && !checkSubmitButtonStatus()) {
-      doLogin();
-    }
-  };
-
   const doLogin = async () => {
-    try {
-      setIsLoading(true);
-
-      const [user, authToken] = await login(alias, password);
-
-      updateUserInfo(user, user, authToken, rememberMe);
-
-      if (!!props.originalUrl) {
-        navigate(props.originalUrl);
-      } else {
-        navigate(`/feed/${user.alias}`);
-      }
-    } catch (error) {
-      displayErrorMessage(
-        `Failed to log user in because of exception: ${error}`
-      );
-    } finally {
-      setIsLoading(false);
-    }
+    presenterRef.current.doLogin(alias, password);
   };
+  //   try {
+  //     setIsLoading(true);
 
-  const login = async (
-    alias: string,
-    password: string
-  ): Promise<[User, AuthToken]> => {
-    // TODO: Replace with the result of calling the server
-    const user = FakeData.instance.firstUser;
+  //     const [user, authToken] = await login(alias, password);
 
-    if (user === null) {
-      throw new Error("Invalid alias or password");
-    }
+  //     updateUserInfo(user, user, authToken, rememberMe);
 
-    return [user, FakeData.instance.authToken];
-  };
+  //     if (!!props.originalUrl) {
+  //       navigate(props.originalUrl);
+  //     } else {
+  //       navigate(`/feed/${user.alias}`);
+  //     }
+  //   } catch (error) {
+  //     displayErrorMessage(
+  //       `Failed to log user in because of exception: ${error}`
+  //     );
+  //   } finally {
+  //     setIsLoading(false);
+  //   }
+  // };
+
+  // const login = async (
+  //   alias: string,
+  //   password: string
+  // ): Promise<[User, AuthToken]> => {
+  //   // TODO: Replace with the result of calling the server
+  //   const user = FakeData.instance.firstUser;
+
+  //   if (user === null) {
+  //     throw new Error("Invalid alias or password");
+  //   }
+
+  //   return [user, FakeData.instance.authToken];
+  // };
 
   const inputFieldFactory = () => {
     return (
@@ -97,9 +103,9 @@ const Login = (props: Props) => {
       oAuthHeading="Sign in with:"
       inputFieldFactory={inputFieldFactory}
       switchAuthenticationMethodFactory={switchAuthenticationMethodFactory}
-      setRememberMe={setRememberMe}
+      setRememberMe={presenterRef.current.setRememberMe}
       submitButtonDisabled={checkSubmitButtonStatus}
-      isLoading={isLoading}
+      isLoading={presenterRef.current.isLoading}
       submit={doLogin}
     />
   );
