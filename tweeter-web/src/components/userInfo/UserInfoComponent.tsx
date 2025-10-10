@@ -21,6 +21,8 @@ const UserInfo = () => {
 
   const listener: UserInfoView = {
     displayErrorMessage: displayErrorMessage,
+    displayInfoMessage: displayInfoMessage,
+    deleteMessage: deleteMessage,
   };
 
   const presenterRef = useRef<UserInfoPresenter>(
@@ -57,24 +59,14 @@ const UserInfo = () => {
   ): Promise<void> => {
     event.preventDefault();
 
-    var followingUserToast = "";
-
-    try {
-      setIsLoading(true);
-      followingUserToast = displayInfoMessage(
-        `Following ${displayedUser!.name}...`,
-        0
-      );
-
-      await presenterRef.current.follow;
-    } catch (error) {
-      displayErrorMessage(
-        `Failed to follow user because of exception: ${error}`
-      );
-    } finally {
-      deleteMessage(followingUserToast);
-      setIsLoading(false);
-    }
+    presenterRef.current.attemptFollowChange(
+      setIsLoading,
+      "follow",
+      `Following ${displayedUser!.name}...`,
+      "Failed to follow user because of exception: ",
+      authToken,
+      displayedUser
+    );
   };
 
   const unfollowDisplayedUser = async (
@@ -82,24 +74,14 @@ const UserInfo = () => {
   ): Promise<void> => {
     event.preventDefault();
 
-    var unfollowingUserToast = "";
-
-    try {
-      setIsLoading(true);
-      unfollowingUserToast = displayInfoMessage(
-        `Unfollowing ${displayedUser!.name}...`,
-        0
-      );
-
-      await presenterRef.current.unfollow(authToken!, displayedUser!);
-    } catch (error) {
-      displayErrorMessage(
-        `Failed to unfollow user because of exception: ${error}`
-      );
-    } finally {
-      deleteMessage(unfollowingUserToast);
-      setIsLoading(false);
-    }
+    presenterRef.current.attemptFollowChange(
+      setIsLoading,
+      "unfollow",
+      `Unfollowing ${displayedUser!.name}...`,
+      "Failed to unfollow user because of exception: ",
+      authToken,
+      displayedUser
+    );
   };
 
   return (

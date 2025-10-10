@@ -2,7 +2,9 @@ import { AuthToken, User } from "tweeter-shared";
 import { UserInfoService } from "../model.service/UserInfoService";
 
 export interface UserInfoView {
-  displayErrorMessage: (message: string) => void;
+  displayErrorMessage: (message: string) => string;
+  displayInfoMessage: (message: string, duration: number) => string;
+  deleteMessage: (messageId: string) => void;
 }
 
 export class UserInfoPresenter {
@@ -40,6 +42,33 @@ export class UserInfoPresenter {
       this.view.displayErrorMessage(
         `Failed to get followees count because of exception: ${error}`
       );
+    }
+  }
+
+  public async attemptFollowChange(
+    setIsLoading: (value: React.SetStateAction<boolean>) => void,
+    changeRequest: string,
+    followMessage: string,
+    failedMessage: string,
+    authToken: AuthToken | null,
+    displayedUser: User | null
+  ) {
+    var followingUserToast = "";
+
+    try {
+      setIsLoading(true);
+      followingUserToast = this.view.displayInfoMessage(followMessage, 0);
+
+      if (changeRequest == "follow") {
+        await this.follow(authToken!, displayedUser!);
+      } else if (changeRequest == "unfollow") {
+        await this.unfollow(authToken!, displayedUser!);
+      }
+    } catch (error) {
+      this.view.displayErrorMessage(`${failedMessage}${error}`);
+    } finally {
+      this.view.deleteMessage(followingUserToast);
+      setIsLoading(false);
     }
   }
 
