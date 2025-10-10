@@ -11,7 +11,6 @@ import Register from "./components/authentication/register/Register";
 import MainLayout from "./components/mainLayout/MainLayout";
 import Toaster from "./components/toaster/Toaster";
 import UserItemScroller from "./components/mainLayout/UserItemScroller";
-import { AuthToken, FakeData, Status } from "tweeter-shared";
 import StatusItemScroller from "./components/mainLayout/StatusItemScroller";
 import { useUserInfo } from "./components/userInfo/UserInfoHooks";
 import { FolloweePresenter } from "./presenter/FolloweePresenter";
@@ -19,6 +18,7 @@ import { UserItemView } from "./presenter/UserItemPresenter";
 import { FollowerPresenter } from "./presenter/FollowerPresenter";
 import { FeedPresenter } from "./presenter/FeedPresenter";
 import { StatusItemView } from "./presenter/StatusItemPresenter";
+import { StoryPresenter } from "./presenter/StoryPresenter";
 
 const App = () => {
   const { currentUser, authToken } = useUserInfo();
@@ -43,26 +43,6 @@ const App = () => {
 
 const AuthenticatedRoutes = () => {
   const { displayedUser } = useUserInfo();
-
-  // const loadMoreFeedItems = async (
-  //   authToken: AuthToken,
-  //   userAlias: string,
-  //   pageSize: number,
-  //   lastItem: Status | null
-  // ): Promise<[Status[], boolean]> => {
-  //   // TODO: Replace with the result of calling server
-  //   return FakeData.instance.getPageOfStatuses(lastItem, pageSize);
-  // };
-
-  const loadMoreStoryItems = async (
-    authToken: AuthToken,
-    userAlias: string,
-    pageSize: number,
-    lastItem: Status | null
-  ): Promise<[Status[], boolean]> => {
-    // TODO: Replace with the result of calling server
-    return FakeData.instance.getPageOfStatuses(lastItem, pageSize);
-  };
 
   return (
     <Routes>
@@ -90,7 +70,7 @@ const AuthenticatedRoutes = () => {
               key={`story-${displayedUser!.alias}`}
               featurePath="/story"
               presenterFactory={(view: StatusItemView) =>
-                new FeedPresenter(view)
+                new StoryPresenter(view)
               }
             />
           }

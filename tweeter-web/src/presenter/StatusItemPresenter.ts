@@ -11,7 +11,6 @@ export abstract class StatusItemPresenter {
   protected userService: UserService;
   private _lastItem: Status | null = null;
   private _hasMoreItems = true;
-  // private _items: Status[] = [];
 
   public constructor(view: StatusItemView) {
     this.view = view;
@@ -33,14 +32,6 @@ export abstract class StatusItemPresenter {
   public get hasMoreItems() {
     return this._hasMoreItems;
   }
-
-  // public get items() {
-  //   return this._items;
-  // }
-
-  // public set items(value: Status[]) {
-  //   this._items = value;
-  // }
 
   public async getUser(
     authToken: AuthToken,
