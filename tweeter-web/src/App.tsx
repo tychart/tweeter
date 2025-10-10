@@ -17,6 +17,8 @@ import { useUserInfo } from "./components/userInfo/UserInfoHooks";
 import { FolloweePresenter } from "./presenter/FolloweePresenter";
 import { UserItemView } from "./presenter/UserItemPresenter";
 import { FollowerPresenter } from "./presenter/FollowerPresenter";
+import { FeedPresenter } from "./presenter/FeedPresenter";
+import { StatusItemView } from "./presenter/StatusItemPresenter";
 
 const App = () => {
   const { currentUser, authToken } = useUserInfo();
@@ -42,15 +44,15 @@ const App = () => {
 const AuthenticatedRoutes = () => {
   const { displayedUser } = useUserInfo();
 
-  const loadMoreFeedItems = async (
-    authToken: AuthToken,
-    userAlias: string,
-    pageSize: number,
-    lastItem: Status | null
-  ): Promise<[Status[], boolean]> => {
-    // TODO: Replace with the result of calling server
-    return FakeData.instance.getPageOfStatuses(lastItem, pageSize);
-  };
+  // const loadMoreFeedItems = async (
+  //   authToken: AuthToken,
+  //   userAlias: string,
+  //   pageSize: number,
+  //   lastItem: Status | null
+  // ): Promise<[Status[], boolean]> => {
+  //   // TODO: Replace with the result of calling server
+  //   return FakeData.instance.getPageOfStatuses(lastItem, pageSize);
+  // };
 
   const loadMoreStoryItems = async (
     authToken: AuthToken,
@@ -74,9 +76,10 @@ const AuthenticatedRoutes = () => {
           element={
             <StatusItemScroller
               key={`feed-${displayedUser!.alias}`}
-              itemDescription="feed"
               featurePath="/feed"
-              loadMore={loadMoreFeedItems}
+              presenterFactory={(view: StatusItemView) =>
+                new FeedPresenter(view)
+              }
             />
           }
         />
@@ -85,9 +88,10 @@ const AuthenticatedRoutes = () => {
           element={
             <StatusItemScroller
               key={`story-${displayedUser!.alias}`}
-              itemDescription="story"
               featurePath="/story"
-              loadMore={loadMoreStoryItems}
+              presenterFactory={(view: StatusItemView) =>
+                new FeedPresenter(view)
+              }
             />
           }
         />

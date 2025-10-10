@@ -1,18 +1,46 @@
-import { AuthToken, User } from "tweeter-shared";
+import { AuthToken, Status, User } from "tweeter-shared";
 import { UserService } from "../model.service/UserService";
 
 export interface StatusItemView {
   displayErrorMessage: (message: string) => void;
+  addItems: (items: Status[]) => void;
 }
 
-export class StatusItemPresenter {
-  private view: StatusItemView;
-  private userService: UserService;
+export abstract class StatusItemPresenter {
+  protected view: StatusItemView;
+  protected userService: UserService;
+  private _lastItem: Status | null = null;
+  private _hasMoreItems = true;
+  // private _items: Status[] = [];
 
   public constructor(view: StatusItemView) {
     this.view = view;
     this.userService = new UserService();
   }
+
+  protected get lastItem() {
+    return this._lastItem;
+  }
+
+  protected set lastItem(value: Status | null) {
+    this._lastItem = value;
+  }
+
+  protected set hasMoreItems(value: boolean) {
+    this._hasMoreItems = value;
+  }
+
+  public get hasMoreItems() {
+    return this._hasMoreItems;
+  }
+
+  // public get items() {
+  //   return this._items;
+  // }
+
+  // public set items(value: Status[]) {
+  //   this._items = value;
+  // }
 
   public async getUser(
     authToken: AuthToken,
@@ -20,4 +48,11 @@ export class StatusItemPresenter {
   ): Promise<User | null> {
     return this.userService.getUser(authToken, alias);
   }
+
+  reset() {
+    this._lastItem = null;
+    this._hasMoreItems = true;
+  }
+
+  public abstract loadMoreItems(authToken: AuthToken, userAlias: string): void;
 }
