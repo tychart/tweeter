@@ -16,9 +16,6 @@ interface Props {
 const Login = (props: Props) => {
   const [alias, setAlias] = useState("");
   const [password, setPassword] = useState("");
-  // const [rememberMe, setRememberMe] = useState(false);
-  // const [isLoading, setIsLoading] = useState(false);
-
   const navigate = useNavigate();
   const { updateUserInfo } = useUserInfoActions();
   const { displayErrorMessage } = useMessageActions();
@@ -39,40 +36,6 @@ const Login = (props: Props) => {
   const doLogin = async () => {
     presenterRef.current.doLogin(alias, password);
   };
-  //   try {
-  //     setIsLoading(true);
-
-  //     const [user, authToken] = await login(alias, password);
-
-  //     updateUserInfo(user, user, authToken, rememberMe);
-
-  //     if (!!props.originalUrl) {
-  //       navigate(props.originalUrl);
-  //     } else {
-  //       navigate(`/feed/${user.alias}`);
-  //     }
-  //   } catch (error) {
-  //     displayErrorMessage(
-  //       `Failed to log user in because of exception: ${error}`
-  //     );
-  //   } finally {
-  //     setIsLoading(false);
-  //   }
-  // };
-
-  // const login = async (
-  //   alias: string,
-  //   password: string
-  // ): Promise<[User, AuthToken]> => {
-  //   // TODO: Replace with the result of calling the server
-  //   const user = FakeData.instance.firstUser;
-
-  //   if (user === null) {
-  //     throw new Error("Invalid alias or password");
-  //   }
-
-  //   return [user, FakeData.instance.authToken];
-  // };
 
   const inputFieldFactory = () => {
     return (

@@ -10,10 +10,8 @@ import {
 
 const UserInfo = () => {
   const [isLoading, setIsLoading] = useState(false);
-
   const { displayInfoMessage, displayErrorMessage, deleteMessage } =
     useMessageActions();
-
   const { currentUser, authToken, displayedUser } = useUserInfo();
   const { setDisplayedUser } = useUserInfoActions();
   const navigate = useNavigate();

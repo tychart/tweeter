@@ -16,8 +16,6 @@ export interface LoginView {
 export class LoginPresenter {
   private view: LoginView;
   private authService: AuthService;
-  // private _alias: string = "";
-  // private _password: string = "";
   private _rememberMe: boolean = false;
   private _isLoading: boolean = false;
 
@@ -26,14 +24,6 @@ export class LoginPresenter {
     this.authService = new AuthService();
   }
 
-  // public get alias(): string {
-  //   return this._alias;
-  // }
-
-  // public get password(): string {
-  //   return this._password;
-  // }
-
   public get rememberMe(): boolean {
     return this._rememberMe;
   }
@@ -41,22 +31,6 @@ export class LoginPresenter {
   public get isLoading(): boolean {
     return this._isLoading;
   }
-
-  // public set alias(value: string) {
-  //   this._alias = value;
-  // }
-
-  // public setAlias(value: string) {
-  //   this._alias = value;
-  // }
-
-  // public set password(value: string) {
-  //   this._password = value;
-  // }
-
-  // public setPassword(value: string) {
-  //   this._password = value;
-  // }
 
   public set rememberMe(value: boolean) {
     this._rememberMe = value;
