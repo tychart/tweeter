@@ -1,7 +1,11 @@
-import { AuthToken, User, FakeData } from "tweeter-shared";
 import { useUserInfo, useUserInfoActions } from "./userInfo/UserInfoHooks";
 import { useNavigate } from "react-router-dom";
 import { useMessageActions } from "./toaster/MessageHooks";
+import {
+  UserNavigationPresenter,
+  UserNavigationView,
+} from "../presenter/UserNavigationPresenter";
+import { useRef } from "react";
 
 export const useUserNavigation = (featurePath: string) => {
   const { displayErrorMessage } = useMessageActions();
@@ -9,37 +13,22 @@ export const useUserNavigation = (featurePath: string) => {
   const { displayedUser, authToken } = useUserInfo();
   const { setDisplayedUser } = useUserInfoActions();
 
+  const listener: UserNavigationView = {
+    displayErrorMessage: displayErrorMessage,
+    setDisplayedUser: setDisplayedUser,
+    navigate: navigate,
+    featurePath: featurePath,
+  };
+
+  const presenterRef = useRef<UserNavigationPresenter>(
+    new UserNavigationPresenter(listener)
+  );
+
   const navigateToUser = async (event: React.MouseEvent): Promise<void> => {
     event.preventDefault();
 
-    try {
-      const alias = extractAlias(event.target.toString());
-
-      const toUser = await getUser(authToken!, alias);
-
-      if (toUser) {
-        if (!toUser.equals(displayedUser!)) {
-          setDisplayedUser(toUser);
-          navigate(`${featurePath}/${toUser.alias}`);
-        }
-      }
-    } catch (error) {
-      displayErrorMessage(`Failed to get user because of exception: ${error}`);
-    }
+    presenterRef.current.navigateToUser(event, displayedUser, authToken);
   };
 
   return navigateToUser;
-};
-
-const extractAlias = (value: string): string => {
-  const index = value.indexOf("@");
-  return value.substring(index);
-};
-
-const getUser = async (
-  authToken: AuthToken,
-  alias: string
-): Promise<User | null> => {
-  // TODO: Replace with the result of calling server
-  return FakeData.instance.findUserByAlias(alias);
 };
