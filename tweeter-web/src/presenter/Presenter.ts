@@ -15,7 +15,8 @@ export abstract class Presenter<V extends View> {
 
   protected async doFailureReportingOperation(
     operation: () => Promise<void>,
-    operationDescription: string
+    operationDescription: string,
+    finallyFunction?: () => void
   ) {
     try {
       await operation();
@@ -23,6 +24,8 @@ export abstract class Presenter<V extends View> {
       this.view.displayErrorMessage(
         `Failed to ${operationDescription} because of exception: ${error}`
       );
+    } finally {
+      finallyFunction?.();
     }
   }
 }

@@ -1,8 +1,9 @@
 import { User, AuthToken } from "tweeter-shared";
 import { AuthService } from "../model.service/AuthService";
 import { Buffer } from "buffer";
+import { Presenter, View } from "./Presenter";
 
-export interface RegisterView {
+export interface RegisterView extends View {
   displayErrorMessage: (message: string) => string;
   updateUserInfo: (
     currentUser: User,
@@ -13,8 +14,7 @@ export interface RegisterView {
   navigate: (...args: any[]) => void;
 }
 
-export class RegisterPresenter {
-  private view: RegisterView;
+export class RegisterPresenter extends Presenter<RegisterView> {
   private authService: AuthService;
   private _isLoading: boolean = false;
   private _imageBytes: Uint8Array = Buffer.from([]);
@@ -22,7 +22,7 @@ export class RegisterPresenter {
   private _imageUrl: string = "";
 
   public constructor(view: RegisterView) {
-    this.view = view;
+    super(view);
     this.authService = new AuthService();
   }
 
@@ -55,27 +55,49 @@ export class RegisterPresenter {
     imageFileExtension: string,
     rememberMe: boolean
   ) {
-    try {
-      this.isLoading = true;
+    this.doFailureReportingOperation(
+      async () => {
+        this.isLoading = true;
 
-      const [user, authToken] = await this.authService.register(
-        firstName,
-        lastName,
-        alias,
-        password,
-        imageBytes,
-        imageFileExtension
-      );
+        const [user, authToken] = await this.authService.register(
+          firstName,
+          lastName,
+          alias,
+          password,
+          imageBytes,
+          imageFileExtension
+        );
 
-      this.view.updateUserInfo(user, user, authToken, rememberMe);
-      this.view.navigate(`/feed/${user.alias}`);
-    } catch (error) {
-      this.view.displayErrorMessage(
-        `Failed to register user because of exception: ${error}`
-      );
-    } finally {
-      this.isLoading = false;
-    }
+        this.view.updateUserInfo(user, user, authToken, rememberMe);
+        this.view.navigate(`/feed/${user.alias}`);
+      },
+      "register user",
+      () => {
+        this.isLoading = false;
+      }
+    );
+
+    // try {
+    //   this.isLoading = true;
+
+    //   const [user, authToken] = await this.authService.register(
+    //     firstName,
+    //     lastName,
+    //     alias,
+    //     password,
+    //     imageBytes,
+    //     imageFileExtension
+    //   );
+
+    //   this.view.updateUserInfo(user, user, authToken, rememberMe);
+    //   this.view.navigate(`/feed/${user.alias}`);
+    // } catch (error) {
+    //   this.view.displayErrorMessage(
+    //     `Failed to register user because of exception: ${error}`
+    //   );
+    // } finally {
+    //   this.isLoading = false;
+    // }
   }
 
   public handleImageFile(file: File | undefined) {
