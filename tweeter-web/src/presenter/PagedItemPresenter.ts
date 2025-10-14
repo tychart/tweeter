@@ -18,7 +18,7 @@ export abstract class PagedItemPresenter<
   private _hasMoreItems = true;
   private _service: U;
 
-  protected constructor(view: PagedItemView<T>) {
+  public constructor(view: PagedItemView<T>) {
     super(view);
     this._service = this.serviceFactory();
   }
