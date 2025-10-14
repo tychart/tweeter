@@ -76,28 +76,6 @@ export class RegisterPresenter extends Presenter<RegisterView> {
         this.isLoading = false;
       }
     );
-
-    // try {
-    //   this.isLoading = true;
-
-    //   const [user, authToken] = await this.authService.register(
-    //     firstName,
-    //     lastName,
-    //     alias,
-    //     password,
-    //     imageBytes,
-    //     imageFileExtension
-    //   );
-
-    //   this.view.updateUserInfo(user, user, authToken, rememberMe);
-    //   this.view.navigate(`/feed/${user.alias}`);
-    // } catch (error) {
-    //   this.view.displayErrorMessage(
-    //     `Failed to register user because of exception: ${error}`
-    //   );
-    // } finally {
-    //   this.isLoading = false;
-    // }
   }
 
   public handleImageFile(file: File | undefined) {

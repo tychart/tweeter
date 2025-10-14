@@ -34,23 +34,6 @@ export class UserNavigationPresenter extends Presenter<UserNavigationView> {
         }
       }
     }, "get user");
-
-    // try {
-    //   const alias = this.extractAlias(event.target.toString());
-
-    //   const toUser = await this.userService.getUser(authToken!, alias);
-
-    //   if (toUser) {
-    //     if (!toUser.equals(displayedUser!)) {
-    //       this.view.setDisplayedUser(toUser);
-    //       this.view.navigate(`${this.view.featurePath}/${toUser.alias}`);
-    //     }
-    //   }
-    // } catch (error) {
-    //   this.view.displayErrorMessage(
-    //     `Failed to get user because of exception: ${error}`
-    //   );
-    // }
   }
 
   public extractAlias(value: string): string {

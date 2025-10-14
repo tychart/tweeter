@@ -50,25 +50,5 @@ export class LoginPresenter extends Presenter<LoginView> {
         this._isLoading = false;
       }
     );
-
-    // try {
-    //   this._isLoading = true;
-
-    //   const [user, authToken] = await this.authService.login(alias, password);
-
-    //   this.view.updateUserInfo(user, user, authToken, rememberMe);
-
-    //   if (!!this.view.originalUrl) {
-    //     this.view.navigate(this.view.originalUrl);
-    //   } else {
-    //     this.view.navigate(`/feed/${user.alias}`);
-    //   }
-    // } catch (error) {
-    //   this.view.displayErrorMessage(
-    //     `Failed to log user in because of exception: ${error}`
-    //   );
-    // } finally {
-    //   this._isLoading = false;
-    // }
   }
 }
