@@ -1,34 +1,26 @@
-import { User, AuthToken } from "tweeter-shared";
-import { AuthService } from "../model.service/AuthService";
 import { Buffer } from "buffer";
-import { Presenter, View } from "./Presenter";
+import { AuthPresenter } from "./AuthPresenter";
 
-export interface RegisterView extends View {
-  displayErrorMessage: (message: string) => string;
-  updateUserInfo: (
-    currentUser: User,
-    displayedUser: User | null,
-    authToken: AuthToken,
-    remember: boolean
-  ) => void;
-  navigate: (...args: any[]) => void;
-}
+// export interface RegisterView extends View {
+//   updateUserInfo: (
+//     currentUser: User,
+//     displayedUser: User | null,
+//     authToken: AuthToken,
+//     remember: boolean
+//   ) => void;
+//   navigate: (...args: any[]) => void;
+// }
 
-export class RegisterPresenter extends Presenter<RegisterView> {
-  private authService: AuthService;
-  private _isLoading: boolean = false;
+export class RegisterPresenter extends AuthPresenter {
+  // private authService: AuthService;
+  // private _isLoading: boolean = false;
   private _imageBytes: Uint8Array = Buffer.from([]);
   private _imageFileExtension: string = "";
   private _imageUrl: string = "";
 
-  public constructor(view: RegisterView) {
-    super(view);
-    this.authService = new AuthService();
-  }
-
-  public get isLoading(): boolean {
-    return this._isLoading;
-  }
+  // public get isLoading(): boolean {
+  //   return this._isLoading;
+  // }
 
   public get imageBytes(): Uint8Array {
     return this._imageBytes;
@@ -42,9 +34,9 @@ export class RegisterPresenter extends Presenter<RegisterView> {
     return this._imageUrl;
   }
 
-  public set isLoading(value: boolean) {
-    this._isLoading = value;
-  }
+  // public set isLoading(value: boolean) {
+  //   this._isLoading = value;
+  // }
 
   public async doRegister(
     firstName: string,

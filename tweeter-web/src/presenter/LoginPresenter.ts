@@ -1,39 +1,40 @@
 import { User, AuthToken } from "tweeter-shared";
-import { AuthService } from "../model.service/AuthService";
-import { Presenter, View } from "./Presenter";
+import { AuthPresenter } from "./AuthPresenter";
 
-export interface LoginView extends View {
-  updateUserInfo: (
-    currentUser: User,
-    displayedUser: User | null,
-    authToken: AuthToken,
-    remember: boolean
-  ) => void;
-  navigate: (...args: any[]) => void;
-  originalUrl: string | undefined;
-}
+// export interface LoginView extends View {
+//   updateUserInfo: (
+//     currentUser: User,
+//     displayedUser: User | null,
+//     authToken: AuthToken,
+//     remember: boolean
+//   ) => void;
+//   navigate: (...args: any[]) => void;
+//   originalUrl: string | undefined;
+// }
 
-export class LoginPresenter extends Presenter<LoginView> {
-  private authService: AuthService;
-  private _isLoading: boolean = false;
+export class LoginPresenter extends AuthPresenter {
+  // private authService: AuthService;
+  // private _isLoading: boolean = false;
 
-  public constructor(view: LoginView) {
-    super(view);
-    this.authService = new AuthService();
-  }
+  // public constructor(view: LoginView) {
+  //   super(view);
+  //   this.authService = new AuthService();
+  // }
 
-  public get isLoading(): boolean {
-    return this._isLoading;
-  }
+  // public get isLoading(): boolean {
+  //   return this._isLoading;
+  // }
 
-  public set isLoading(value: boolean) {
-    this._isLoading = value;
-  }
+  // public set isLoading(value: boolean) {
+  //   this._isLoading = value;
+  // }
+
+  //doAuthenticationOperation - Video 1:39
 
   public async doLogin(alias: string, password: string, rememberMe: boolean) {
     this.doFailureReportingOperation(
       async () => {
-        this._isLoading = true;
+        this.isLoading = true;
 
         const [user, authToken] = await this.authService.login(alias, password);
 
@@ -47,8 +48,12 @@ export class LoginPresenter extends Presenter<LoginView> {
       },
       "log user in",
       () => {
-        this._isLoading = false;
+        this.isLoading = false;
       }
     );
   }
+
+  // protected async interactService(): Promise<[User, AuthToken]> {
+  //   return await this.authService.login(alias, password);
+  // }
 }

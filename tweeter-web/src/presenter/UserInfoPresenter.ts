@@ -13,6 +13,18 @@ export class UserInfoPresenter extends Presenter<MessageView> {
     this.userInfoService = new UserInfoService();
   }
 
+  public get followerCount() {
+    return this._followerCount;
+  }
+
+  public get followeeCount() {
+    return this._followeeCount;
+  }
+
+  public get isFollower() {
+    return this._isFollower;
+  }
+
   public async setNumbFollowers(authToken: AuthToken, displayedUser: User) {
     this.doFailureReportingOperation(async () => {
       this._followerCount = await this.userInfoService.getFollowerCount(
@@ -126,17 +138,5 @@ export class UserInfoPresenter extends Presenter<MessageView> {
         );
       }
     }, "determine follower status");
-  }
-
-  public get followerCount() {
-    return this._followerCount;
-  }
-
-  public get followeeCount() {
-    return this._followeeCount;
-  }
-
-  public get isFollower() {
-    return this._isFollower;
   }
 }
