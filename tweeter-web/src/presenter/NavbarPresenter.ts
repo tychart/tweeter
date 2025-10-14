@@ -1,22 +1,14 @@
 import { AuthToken } from "tweeter-shared";
+import { MessageView, Presenter } from "./Presenter";
 
-export interface NavbarView {
-  displayErrorMessage: (message: string) => string;
-  displayInfoMessage: (
-    message: string,
-    duration: number,
-    bootstrapClasses?: string | undefined
-  ) => string;
-  deleteMessage: (messageId: string) => void;
+export interface NavbarView extends MessageView {
   clearUserInfo: () => void;
   navigate: (...args: any[]) => void;
 }
 
-export class NavbarPresenter {
-  private view: NavbarView;
-
+export class NavbarPresenter extends Presenter<NavbarView> {
   public constructor(view: NavbarView) {
-    this.view = view;
+    super(view);
   }
 
   public async logOut(authToken: AuthToken | null) {

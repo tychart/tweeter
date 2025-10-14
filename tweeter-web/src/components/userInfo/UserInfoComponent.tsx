@@ -3,10 +3,8 @@ import { useEffect, useRef, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useMessageActions } from "../toaster/MessageHooks";
 import { useUserInfo, useUserInfoActions } from "./UserInfoHooks";
-import {
-  UserInfoView,
-  UserInfoPresenter,
-} from "../../presenter/UserInfoPresenter";
+import { UserInfoPresenter } from "../../presenter/UserInfoPresenter";
+import { MessageView } from "../../presenter/Presenter";
 
 const UserInfo = () => {
   const [isLoading, setIsLoading] = useState(false);
@@ -17,7 +15,7 @@ const UserInfo = () => {
   const navigate = useNavigate();
   const location = useLocation();
 
-  const listener: UserInfoView = {
+  const listener: MessageView = {
     displayErrorMessage: displayErrorMessage,
     displayInfoMessage: displayInfoMessage,
     deleteMessage: deleteMessage,
@@ -76,7 +74,7 @@ const UserInfo = () => {
       setIsLoading,
       "unfollow",
       `Unfollowing ${displayedUser!.name}...`,
-      "Failed to unfollow user because of exception: ",
+      "unfollow user",
       authToken,
       displayedUser
     );
