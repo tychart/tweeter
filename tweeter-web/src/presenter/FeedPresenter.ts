@@ -1,29 +1,20 @@
-import { AuthToken } from "tweeter-shared";
-import { FeedService } from "../model.service/StatusItemService";
-import { StatusItemPresenter, StatusItemView } from "./StatusItemPresenter";
-
-export const PAGE_SIZE = 10;
+import { AuthToken, Status } from "tweeter-shared";
+import { StatusItemPresenter } from "./StatusItemPresenter";
+import { PAGE_SIZE } from "./PagedItemPresenter";
 
 export class FeedPresenter extends StatusItemPresenter {
-  private feedService: FeedService;
-
-  public constructor(view: StatusItemView) {
-    super(view);
-    this.feedService = new FeedService();
+  protected itemDescription(): string {
+    return "load feed items";
   }
-
-  public async loadMoreItems(authToken: AuthToken, userAlias: string) {
-    this.doFailureReportingOperation(async () => {
-      const [newItems, hasMore] = await this.feedService.loadMoreFeedItems(
-        authToken!,
-        userAlias,
-        PAGE_SIZE,
-        this.lastItem
-      );
-
-      this.hasMoreItems = hasMore;
-      this.lastItem = newItems[newItems.length - 1];
-      this.view.addItems(newItems);
-    }, "load feed items");
+  protected getMoreItems(
+    authToken: AuthToken,
+    userAlias: string
+  ): Promise<[Status[], boolean]> {
+    return this.service.loadMoreFeedItems(
+      authToken,
+      userAlias,
+      PAGE_SIZE,
+      this.lastItem
+    );
   }
 }

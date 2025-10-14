@@ -14,17 +14,25 @@ export class NavbarPresenter extends Presenter<NavbarView> {
   public async logOut(authToken: AuthToken | null) {
     const loggingOutToastId = this.view.displayInfoMessage("Logging Out...", 0);
 
-    try {
+    this.doFailureReportingOperation(async () => {
       await this.logout(authToken!);
 
       this.view.deleteMessage(loggingOutToastId);
       this.view.clearUserInfo();
       this.view.navigate("/login");
-    } catch (error) {
-      this.view.displayErrorMessage(
-        `Failed to log user out because of exception: ${error}`
-      );
-    }
+    }, "log user out");
+
+    // try {
+    //   await this.logout(authToken!);
+
+    //   this.view.deleteMessage(loggingOutToastId);
+    //   this.view.clearUserInfo();
+    //   this.view.navigate("/login");
+    // } catch (error) {
+    //   this.view.displayErrorMessage(
+    //     `Failed to log user out because of exception: ${error}`
+    //   );
+    // }
   }
 
   public async logout(authToken: AuthToken): Promise<void> {

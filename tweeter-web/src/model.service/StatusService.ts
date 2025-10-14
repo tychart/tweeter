@@ -1,6 +1,7 @@
 import { AuthToken, Status, FakeData } from "tweeter-shared";
+import { Service } from "./Service";
 
-export class FeedService {
+export class StatusService implements Service {
   public async loadMoreFeedItems(
     authToken: AuthToken,
     userAlias: string,
@@ -10,9 +11,7 @@ export class FeedService {
     // TODO: Replace with the result of calling server
     return FakeData.instance.getPageOfStatuses(lastItem, pageSize);
   }
-}
 
-export class StoryService {
   public async loadMoreStoryItems(
     authToken: AuthToken,
     userAlias: string,
