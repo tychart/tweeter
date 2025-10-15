@@ -13,8 +13,27 @@ const OAuth = () => {
     displayInfoMessage(message, 3000, "text-white bg-primary");
   };
 
+  // const oauthButton = (
+  //   displayInfoMessageWithDarkBackground: (message: string) => void,
+  //   serviceName: string,
+  //   overlayTrigger: () => JSX.Element
+  // ): JSX.Element => {
+  //   <button
+  //     type="button"
+  //     className="btn btn-link btn-floating mx-1"
+  //     onClick={() =>
+  //       displayInfoMessageWithDarkBackground(
+  //         `${serviceName} registration is not implemented.`
+  //       )
+  //     }
+  //   >
+  //     overlayTrigger()
+  //   </button>;
+  // };
+
   return (
     <>
+      oauthButton()
       <div className="text-center mb-3">
         <button
           type="button"
