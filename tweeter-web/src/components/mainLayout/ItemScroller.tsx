@@ -2,16 +2,11 @@ import { useState, useEffect, useRef } from "react";
 import InfiniteScroll from "react-infinite-scroll-component";
 import { Status, User } from "tweeter-shared";
 import { useParams } from "react-router-dom";
-import UserItem from "../userItem/UserItem";
 import { useMessageActions } from "../toaster/MessageHooks";
 import { useUserInfo, useUserInfoActions } from "../userInfo/UserInfoHooks";
 import { UserItemPresenter } from "../../presenter/UserItemPresenter";
-import {
-  PagedItemPresenter,
-  PagedItemView,
-} from "../../presenter/PagedItemPresenter";
+import { PagedItemView } from "../../presenter/PagedItemPresenter";
 import { StatusItemPresenter } from "../../presenter/StatusItemPresenter";
-import { Service } from "../../model.service/Service";
 
 interface Props<T extends User | Status> {
   featurePath: string;

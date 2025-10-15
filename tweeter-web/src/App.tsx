@@ -11,7 +11,6 @@ import Register from "./components/authentication/register/Register";
 import MainLayout from "./components/mainLayout/MainLayout";
 import Toaster from "./components/toaster/Toaster";
 import ItemScroller from "./components/mainLayout/ItemScroller";
-import StatusItemScroller from "./components/mainLayout/StatusItemScroller";
 import { useUserInfo } from "./components/userInfo/UserInfoHooks";
 import { FolloweePresenter } from "./presenter/FolloweePresenter";
 import { FollowerPresenter } from "./presenter/FollowerPresenter";
@@ -20,6 +19,7 @@ import { StoryPresenter } from "./presenter/StoryPresenter";
 import { PagedItemView } from "./presenter/PagedItemPresenter";
 import { Status, User } from "tweeter-shared";
 import UserItem from "./components/userItem/UserItem";
+import StatusItem from "./components/statusItem/StatusItem";
 
 const App = () => {
   const { currentUser, authToken } = useUserInfo();
@@ -53,6 +53,13 @@ const AuthenticatedRoutes = () => {
     return <UserItem user={item} featurePath={featurePath} />;
   };
 
+  const statusItemComponentFactory = (
+    item: Status,
+    featurePath: string
+  ): JSX.Element => {
+    return <StatusItem status={item} featurePath={featurePath} />;
+  };
+
   return (
     <Routes>
       <Route element={<MainLayout />}>
@@ -63,24 +70,26 @@ const AuthenticatedRoutes = () => {
         <Route
           path="feed/:displayedUser"
           element={
-            <StatusItemScroller
+            <ItemScroller
               key={`feed-${displayedUser!.alias}`}
               featurePath="/feed"
               presenterFactory={(view: PagedItemView<Status>) =>
                 new FeedPresenter(view)
               }
+              itemComponentFactory={statusItemComponentFactory}
             />
           }
         />
         <Route
           path="story/:displayedUser"
           element={
-            <StatusItemScroller
+            <ItemScroller
               key={`story-${displayedUser!.alias}`}
               featurePath="/story"
               presenterFactory={(view: PagedItemView<Status>) =>
                 new StoryPresenter(view)
               }
+              itemComponentFactory={statusItemComponentFactory}
             />
           }
         />
