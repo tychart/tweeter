@@ -16,9 +16,7 @@ interface Props<T extends User | Status> {
   itemComponentFactory: (item: T, featurePath: string) => JSX.Element;
 }
 
-const ItemScroller = <T extends User | Status, U extends PagedItemView<T>>(
-  props: Props<T>
-) => {
+const ItemScroller = <T extends User | Status>(props: Props<T>) => {
   const { displayErrorMessage } = useMessageActions();
   const [items, setItems] = useState<T[]>([]);
   const { displayedUser, authToken } = useUserInfo();
