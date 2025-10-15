@@ -4,7 +4,6 @@ import { NavigateFunction } from "react-router-dom";
 import { Presenter, View } from "./Presenter";
 
 export interface UserNavigationView extends View {
-  displayErrorMessage: (message: string) => string;
   setDisplayedUser: (user: User) => void;
   navigate: NavigateFunction;
   featurePath: string;

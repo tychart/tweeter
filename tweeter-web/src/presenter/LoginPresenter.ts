@@ -1,4 +1,3 @@
-import { User, AuthToken } from "tweeter-shared";
 import { AuthPresenter } from "./AuthPresenter";
 
 // export interface LoginView extends View {
@@ -32,26 +31,40 @@ export class LoginPresenter extends AuthPresenter {
   //doAuthenticationOperation - Video 1:39
 
   public async doLogin(alias: string, password: string, rememberMe: boolean) {
-    this.doFailureReportingOperation(
-      async () => {
-        this.isLoading = true;
+    this.doAuthenticationOperation(async () => {
+      const [user, authToken] = await this.authService.login(alias, password);
 
-        const [user, authToken] = await this.authService.login(alias, password);
+      this.view.updateUserInfo(user, user, authToken, rememberMe);
 
-        this.view.updateUserInfo(user, user, authToken, rememberMe);
-
-        if (!!this.view.originalUrl) {
-          this.view.navigate(this.view.originalUrl);
-        } else {
-          this.view.navigate(`/feed/${user.alias}`);
-        }
-      },
-      "log user in",
-      () => {
-        this.isLoading = false;
+      if (!!this.view.originalUrl) {
+        this.view.navigate(this.view.originalUrl);
+      } else {
+        this.view.navigate(`/feed/${user.alias}`);
       }
-    );
+    }, "log user in");
   }
+
+  // public async doLogin(alias: string, password: string, rememberMe: boolean) {
+  //   this.doFailureReportingOperation(
+  //     async () => {
+  //       this.isLoading = true;
+
+  //       const [user, authToken] = await this.authService.login(alias, password);
+
+  //       this.view.updateUserInfo(user, user, authToken, rememberMe);
+
+  //       if (!!this.view.originalUrl) {
+  //         this.view.navigate(this.view.originalUrl);
+  //       } else {
+  //         this.view.navigate(`/feed/${user.alias}`);
+  //       }
+  //     },
+  //     "log user in",
+  //     () => {
+  //       this.isLoading = false;
+  //     }
+  //   );
+  // }
 
   // protected async interactService(): Promise<[User, AuthToken]> {
   //   return await this.authService.login(alias, password);

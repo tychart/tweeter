@@ -47,28 +47,52 @@ export class RegisterPresenter extends AuthPresenter {
     imageFileExtension: string,
     rememberMe: boolean
   ) {
-    this.doFailureReportingOperation(
-      async () => {
-        this.isLoading = true;
+    this.doAuthenticationOperation(async () => {
+      const [user, authToken] = await this.authService.register(
+        firstName,
+        lastName,
+        alias,
+        password,
+        imageBytes,
+        imageFileExtension
+      );
 
-        const [user, authToken] = await this.authService.register(
-          firstName,
-          lastName,
-          alias,
-          password,
-          imageBytes,
-          imageFileExtension
-        );
-
-        this.view.updateUserInfo(user, user, authToken, rememberMe);
-        this.view.navigate(`/feed/${user.alias}`);
-      },
-      "register user",
-      () => {
-        this.isLoading = false;
-      }
-    );
+      this.view.updateUserInfo(user, user, authToken, rememberMe);
+      this.view.navigate(`/feed/${user.alias}`);
+    }, "register user");
   }
+
+  // public async doRegister(
+  //   firstName: string,
+  //   lastName: string,
+  //   alias: string,
+  //   password: string,
+  //   imageBytes: Uint8Array,
+  //   imageFileExtension: string,
+  //   rememberMe: boolean
+  // ) {
+  //   this.doFailureReportingOperation(
+  //     async () => {
+  //       this.isLoading = true;
+
+  //       const [user, authToken] = await this.authService.register(
+  //         firstName,
+  //         lastName,
+  //         alias,
+  //         password,
+  //         imageBytes,
+  //         imageFileExtension
+  //       );
+
+  //       this.view.updateUserInfo(user, user, authToken, rememberMe);
+  //       this.view.navigate(`/feed/${user.alias}`);
+  //     },
+  //     "register user",
+  //     () => {
+  //       this.isLoading = false;
+  //     }
+  //   );
+  // }
 
   public handleImageFile(file: File | undefined) {
     if (file) {

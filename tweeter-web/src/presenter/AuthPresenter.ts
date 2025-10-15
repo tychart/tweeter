@@ -30,6 +30,22 @@ export abstract class AuthPresenter extends Presenter<AuthView> {
     this._isLoading = value;
   }
 
+  public async doAuthenticationOperation(
+    authOperation: () => void,
+    operationName: string
+  ) {
+    this.doFailureReportingOperation(
+      async () => {
+        this.isLoading = true;
+        authOperation();
+      },
+      operationName,
+      () => {
+        this.isLoading = false;
+      }
+    );
+  }
+
   // protected async doAuthenticationOperation(
   //   authFunction: () => Promise<[User, AuthToken]>
   // ) {
