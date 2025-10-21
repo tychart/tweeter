@@ -1,15 +1,22 @@
 import { Status, AuthToken, User } from "tweeter-shared";
 import { MessageView, Presenter } from "./Presenter";
+import { StatusService } from "../model.service/StatusService";
 
 export class PostStatusPresenter extends Presenter<MessageView> {
   private _isLoading: boolean = false;
+  private _service: StatusService;
 
   public constructor(view: MessageView) {
     super(view);
+    this._service = new StatusService();
   }
 
   public get isLoading() {
     return this._isLoading;
+  }
+
+  public get service() {
+    return this._service;
   }
 
   public async submitPost(
@@ -30,7 +37,7 @@ export class PostStatusPresenter extends Presenter<MessageView> {
 
         const status = new Status(post, currentUser!, Date.now());
 
-        await this.postStatus(authToken!, status);
+        await this.service.postStatus(authToken!, status);
 
         setPost("");
         this.view.displayInfoMessage("Status posted!", 2000);
@@ -41,15 +48,5 @@ export class PostStatusPresenter extends Presenter<MessageView> {
         this._isLoading = false;
       }
     );
-  }
-
-  private async postStatus(
-    authToken: AuthToken,
-    newStatus: Status
-  ): Promise<void> {
-    // Pause so we can see the logging out message. Remove when connected to the server
-    await new Promise((f) => setTimeout(f, 2000));
-
-    // TODO: Call the server to post the status
   }
 }
