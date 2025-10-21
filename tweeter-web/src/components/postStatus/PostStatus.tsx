@@ -3,7 +3,10 @@ import { useRef, useState } from "react";
 import { useMessageActions } from "../toaster/MessageHooks";
 import { useUserInfo } from "../userInfo/UserInfoHooks";
 import { MessageView } from "../../presenter/Presenter";
-import { PostStatusPresenter } from "../../presenter/PostStatusPresenter";
+import {
+  PostStatusPresenter,
+  PostStatusView,
+} from "../../presenter/PostStatusPresenter";
 
 const PostStatus = () => {
   const { displayInfoMessage, displayErrorMessage, deleteMessage } =
@@ -11,10 +14,13 @@ const PostStatus = () => {
   const { currentUser, authToken } = useUserInfo();
   const [post, setPost] = useState("");
 
-  const listener: MessageView = {
+  const listener: PostStatusView = {
     displayErrorMessage: displayErrorMessage,
     displayInfoMessage: displayInfoMessage,
     deleteMessage: deleteMessage,
+    clearPost: () => {
+      setPost("");
+    },
   };
 
   const presenterRef = useRef<PostStatusPresenter>(
@@ -23,7 +29,7 @@ const PostStatus = () => {
 
   const submitPost = async (event: React.MouseEvent) => {
     event.preventDefault();
-    presenterRef.current.submitPost(authToken, currentUser, post, setPost);
+    presenterRef.current.submitPost(authToken, currentUser, post);
   };
 
   const clearPost = (event: React.MouseEvent) => {

@@ -2,11 +2,15 @@ import { Status, AuthToken, User } from "tweeter-shared";
 import { MessageView, Presenter } from "./Presenter";
 import { StatusService } from "../model.service/StatusService";
 
-export class PostStatusPresenter extends Presenter<MessageView> {
+export interface PostStatusView extends MessageView {
+  clearPost: () => void;
+}
+
+export class PostStatusPresenter extends Presenter<PostStatusView> {
   private _isLoading: boolean = false;
   private _service: StatusService;
 
-  public constructor(view: MessageView) {
+  public constructor(view: PostStatusView) {
     super(view);
     this._service = new StatusService();
   }
@@ -22,8 +26,7 @@ export class PostStatusPresenter extends Presenter<MessageView> {
   public async submitPost(
     authToken: AuthToken | null,
     currentUser: User | null,
-    post: string,
-    setPost: (post: string) => void
+    post: string
   ) {
     var postingStatusToastId = "";
 
@@ -39,7 +42,7 @@ export class PostStatusPresenter extends Presenter<MessageView> {
 
         await this.service.postStatus(authToken!, status);
 
-        setPost("");
+        this.view.clearPost();
         this.view.displayInfoMessage("Status posted!", 2000);
       },
       "post the status",
