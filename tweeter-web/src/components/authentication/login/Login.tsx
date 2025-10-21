@@ -11,6 +11,7 @@ import { AuthView } from "../../../presenter/AuthPresenter";
 
 interface Props {
   originalUrl?: string;
+  presenter?: LoginPresenter;
 }
 
 const Login = (props: Props) => {
@@ -28,14 +29,19 @@ const Login = (props: Props) => {
     originalUrl: props.originalUrl,
   };
 
-  const presenterRef = useRef<LoginPresenter>(new LoginPresenter(listener));
+  const presenterRef = useRef<LoginPresenter | null>(null);
+  if (!presenterRef.current) {
+    presenterRef.current = props.presenter ?? new LoginPresenter(listener);
+  }
+
+  // const presenterRef = useRef<LoginPresenter>(new LoginPresenter(listener));
 
   const checkSubmitButtonStatus = (): boolean => {
     return !alias || !password;
   };
 
   const doLogin = async () => {
-    presenterRef.current.doLogin(alias, password, rememberMe);
+    presenterRef.current!.doLogin(alias, password, rememberMe);
   };
 
   const inputFieldFactory = () => {

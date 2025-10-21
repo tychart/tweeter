@@ -61,6 +61,7 @@ const AuthenticationFormLayout = (props: Props) => {
             type="button"
             disabled={props.submitButtonDisabled()}
             onClick={() => props.submit()}
+            aria-label={props.submitButtonLabel}
           >
             {props.isLoading ? (
               <span
