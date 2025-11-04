@@ -1,0 +1,10 @@
+BUCKET='tychart-s3-tweeter-lambdas'
+
+LAMBDA_ROLE='arn:aws:iam::345594594463:role/cs340lambda'
+
+EDIT_LAMBDALIST='
+tweeterGetFollowees | lambda/follow/GetFolloweesLambda.handler
+'
+
+LAMBDALAYER_ARN='arn:aws:lambda:us-west-2:345594594463:layer:tweeterLambdaLayer:2'
+
