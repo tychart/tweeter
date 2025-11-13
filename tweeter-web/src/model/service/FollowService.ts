@@ -3,6 +3,7 @@ import {
   User,
   FakeData,
   PagedUserItemRequest,
+  UserDto,
 } from "tweeter-shared";
 import { Service } from "./Service";
 import { ServerFacade } from "../network/ServerFacade";
@@ -19,10 +20,10 @@ export class FollowService implements Service {
     const serverFacade = new ServerFacade();
 
     return serverFacade.getMoreFollowees({
-      token: "not a real authtoken",
-      userAlias: "@tychart",
-      pageSize: 10,
-      lastItem: null,
+      token: authToken.token,
+      userAlias: userAlias,
+      pageSize: pageSize,
+      lastItem: this.parseLastItem(lastItem),
     });
   }
 
@@ -33,6 +34,23 @@ export class FollowService implements Service {
     lastItem: User | null
   ): Promise<[User[], boolean]> {
     // TODO: Replace with the result of calling server
-    return FakeData.instance.getPageOfUsers(lastItem, pageSize, userAlias);
+    // return FakeData.instance.getPageOfUsers(lastItem, pageSize, userAlias);
+
+    const serverFacade = new ServerFacade();
+
+    return serverFacade.getMoreFollowers({
+      token: authToken.token,
+      userAlias: userAlias,
+      pageSize: pageSize,
+      lastItem: this.parseLastItem(lastItem),
+    });
+  }
+
+  parseLastItem(lastItem: User | null): UserDto | null {
+    if (lastItem === null) {
+      return null;
+    }
+
+    return lastItem.dto;
   }
 }

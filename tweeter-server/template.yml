@@ -10,7 +10,7 @@ Globals:
     Runtime: nodejs22.x # I Changed from 20.x
     CodeUri: ./dist/
     Layers:
-      - !Ref tweeterLayer
+      - Ref: tweeterLayer
     Timeout: 30
     MemorySize: 128
 
@@ -117,19 +117,21 @@ Resources:
                 responses: *commonAmazonResponses
               responses: *commonSwaggerResponses
 
-          # /followee/create: ##### TODO:DONE Set endpoint URL
-          #   post:
-          #     consumes: *commonConsumes
-          #     produces: *commonProduces
-          #     x-amazon-apigateway-integration:
-          #       type: aws
-          #       httpMethod: POST
-          #       uri:
-          #         ##### TODO: Set function name
-          #         Fn::Sub: arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${userCreateFunction.Arn}/invocations
-          #       requestTemplates: *commonRequestTemplates
-          #       responses: *commonAmazonResponses
-          #     responses: *commonSwaggerResponses
+          /follower/list: ##### TODO:DONE Set endpoint URL
+            post:
+              summary: "Get a paged list of followers for a user"
+              description: "Returns a paged list of all users that follow the given user"
+              consumes: *commonConsumes
+              produces: *commonProduces
+              x-amazon-apigateway-integration:
+                type: aws
+                httpMethod: POST
+                uri:
+                  ##### TODO: Set function name
+                  Fn::Sub: arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${tweeterGetFollowers.Arn}/invocations
+                requestTemplates: *commonRequestTemplates
+                responses: *commonAmazonResponses
+              responses: *commonSwaggerResponses
 
           #   #
           #   # TODO: ADD MORE ENDPOINT DEFINITIONS HERE
@@ -175,25 +177,27 @@ Resources:
         PostApi:
           Type: Api
           Properties:
-            RestApiId: !Ref tweeterApi
+            RestApiId:
+              Ref: tweeterApi
             ##### TODO:DONE Modify the Path property to the actual endpoint URL.
             ##### It must match the URL in the "Endpoint definitions" section above.
             Path: /followee/list
             Method: POST
 
-  # userCreateFunction: ##### TODO: Set function name
-  #   Type: AWS::Serverless::Function
-  #   Properties:
-  #     FunctionName: userCreateFunction ##### TODO: Set function name
-  #     Handler: handlers/users/UserCreateHandler.userCreateHandler ##### TODO: Set Handler
-  #     Policies: *commonPolicies
-  #     Events:
-  #       PostApi:
-  #         Type: Api
-  #         Properties:
-  #           RestApiId: !Ref tweeterApi
-  #           Path: /user/create ##### TODO: Set Path
-  #           Method: POST
+  tweeterGetFollowers: ##### TODO: Set function name
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: tweeterGetFollowers ##### TODO: Set function name
+      Handler: lambda/follow/GetFolloweesLambda.handler ##### TODO: Set Handler
+      Policies: *commonPolicies
+      Events:
+        PostApi:
+          Type: Api
+          Properties:
+            RestApiId:
+              Ref: tweeterApi
+            Path: /follower/list ##### TODO: Set Path
+            Method: POST
 
   # #
   # # TODO: ADD MORE WEB API LAMBDA DEFINITIONS HERE
