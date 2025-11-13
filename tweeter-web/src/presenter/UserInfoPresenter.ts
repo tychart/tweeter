@@ -1,16 +1,16 @@
 import { AuthToken, User } from "tweeter-shared";
-import { UserInfoService } from "../model/service/UserInfoService";
+import { FollowService } from "../model/service/FollowService";
 import { MessageView, Presenter } from "./Presenter";
 
 export class UserInfoPresenter extends Presenter<MessageView> {
   private _followerCount: number = -1;
   private _followeeCount: number = -1;
   private _isFollower: boolean = false;
-  private userInfoService: UserInfoService;
+  private followService: FollowService;
 
   public constructor(view: MessageView) {
     super(view);
-    this.userInfoService = new UserInfoService();
+    this.followService = new FollowService();
   }
 
   public get followerCount() {
@@ -27,7 +27,7 @@ export class UserInfoPresenter extends Presenter<MessageView> {
 
   public async setNumbFollowers(authToken: AuthToken, displayedUser: User) {
     this.doFailureReportingOperation(async () => {
-      this._followerCount = await this.userInfoService.getFollowerCount(
+      this._followerCount = await this.followService.getFollowerCount(
         authToken,
         displayedUser
       );
@@ -36,7 +36,7 @@ export class UserInfoPresenter extends Presenter<MessageView> {
 
   public async setNumbFollowees(authToken: AuthToken, displayedUser: User) {
     this.doFailureReportingOperation(async () => {
-      this._followeeCount = await this.userInfoService.getFolloweeCount(
+      this._followeeCount = await this.followService.getFolloweeCount(
         authToken,
         displayedUser
       );
@@ -81,11 +81,11 @@ export class UserInfoPresenter extends Presenter<MessageView> {
 
     // TODO: Call the server
 
-    const followerCount = await this.userInfoService.getFollowerCount(
+    const followerCount = await this.followService.getFollowerCount(
       authToken,
       userToFollow
     );
-    const followeeCount = await this.userInfoService.getFolloweeCount(
+    const followeeCount = await this.followService.getFolloweeCount(
       authToken,
       userToFollow
     );
@@ -106,11 +106,11 @@ export class UserInfoPresenter extends Presenter<MessageView> {
 
     // TODO: Call the server
 
-    const followerCount = await this.userInfoService.getFollowerCount(
+    const followerCount = await this.followService.getFollowerCount(
       authToken,
       userToUnfollow
     );
-    const followeeCount = await this.userInfoService.getFolloweeCount(
+    const followeeCount = await this.followService.getFolloweeCount(
       authToken,
       userToUnfollow
     );
@@ -131,7 +131,7 @@ export class UserInfoPresenter extends Presenter<MessageView> {
       if (currentUser === displayedUser) {
         this._isFollower = false;
       } else {
-        this._isFollower = await this.userInfoService.getIsFollowerStatus(
+        this._isFollower = await this.followService.getIsFollowerStatus(
           authToken!,
           currentUser!,
           displayedUser!

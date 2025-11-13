@@ -1,6 +1,6 @@
 import { User, AuthToken } from "tweeter-shared";
 import { Presenter, View } from "./Presenter";
-import { AuthService } from "../model/service/AuthService";
+import { UserService } from "../model/service/UserService";
 
 export interface AuthView extends View {
   updateUserInfo: (
@@ -14,12 +14,12 @@ export interface AuthView extends View {
 }
 
 export abstract class AuthPresenter extends Presenter<AuthView> {
-  protected authService: AuthService;
+  protected userService: UserService;
   private _isLoading: boolean = false;
 
   public constructor(view: AuthView) {
     super(view);
-    this.authService = new AuthService();
+    this.userService = new UserService();
   }
 
   public get isLoading(): boolean {

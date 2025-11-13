@@ -48,7 +48,7 @@ export class RegisterPresenter extends AuthPresenter {
     rememberMe: boolean
   ) {
     this.doAuthenticationOperation(async () => {
-      const [user, authToken] = await this.authService.register(
+      const [user, authToken] = await this.userService.register(
         firstName,
         lastName,
         alias,

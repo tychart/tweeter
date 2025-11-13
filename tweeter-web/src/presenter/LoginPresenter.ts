@@ -32,7 +32,7 @@ export class LoginPresenter extends AuthPresenter {
 
   public async doLogin(alias: string, password: string, rememberMe: boolean) {
     this.doAuthenticationOperation(async () => {
-      const [user, authToken] = await this.authService.login(alias, password);
+      const [user, authToken] = await this.userService.login(alias, password);
 
       this.view.updateUserInfo(user, user, authToken, rememberMe);
 
