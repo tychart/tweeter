@@ -4,5 +4,7 @@
 
 /layer
 
+/.aws-sam
+
 dist.zip
 nodejs.zip
