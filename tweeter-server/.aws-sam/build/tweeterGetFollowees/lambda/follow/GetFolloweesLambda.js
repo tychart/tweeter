@@ -6,7 +6,7 @@ const handler = async (request) => {
     const followService = new FollowService_1.FollowService();
     const [items, hasMore] = await followService.loadMoreFollowees(request.token, request.userAlias, request.pageSize, request.lastItem);
     return {
-        succes: true,
+        success: true,
         message: null,
         items: items,
         hasMore: hasMore,

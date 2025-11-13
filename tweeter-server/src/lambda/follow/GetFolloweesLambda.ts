@@ -14,7 +14,7 @@ export const handler = async (
   );
 
   return {
-    succes: true,
+    success: true,
     message: null,
     items: items,
     hasMore: hasMore,
