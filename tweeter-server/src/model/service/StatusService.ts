@@ -23,7 +23,7 @@ export class StatusService implements Service {
   }
 
   private async getFakeData(
-    lastItem: any,
+    lastItem: StatusDto | null,
     pageSize: number
   ): Promise<[StatusDto[], boolean]> {
     const [items, hasMore] = FakeData.instance.getPageOfStatuses(
@@ -31,7 +31,17 @@ export class StatusService implements Service {
       pageSize
     );
 
+    console.log("getFakeData:lastItem =", JSON.stringify(lastItem));
+    console.log("getFakeData:pageSize =", pageSize);
+
+    const cursor = Status.fromDto(lastItem as any); // current signature forces `any`
+    console.log("cursor after fromDto:", cursor);
+
+    console.log("returned count:", items.length, "hasMore:", hasMore);
+
     const dtos = items.map((status) => status.dto);
+
+    console.log("last dto returned:", dtos[dtos.length - 1]);
 
     return [dtos, hasMore];
   }
