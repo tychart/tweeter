@@ -1,6 +1,8 @@
 import { AuthToken, User, FakeData } from "tweeter-shared";
 import { Service } from "./Service";
 
+// I might want to consider moving these into the Follow service file
+
 export class UserInfoService implements Service {
   public async getFollowerCount(
     authToken: AuthToken,

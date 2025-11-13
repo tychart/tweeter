@@ -133,6 +133,38 @@ Resources:
                 responses: *commonAmazonResponses
               responses: *commonSwaggerResponses
 
+          /feed/list: ##### TODO:DONE Set endpoint URL
+            post:
+              summary: "Get a paged list of a user's feed"
+              description: "Returns a paged list of a specific user's feed"
+              consumes: *commonConsumes
+              produces: *commonProduces
+              x-amazon-apigateway-integration:
+                type: aws
+                httpMethod: POST
+                uri:
+                  ##### TODO: Set function name
+                  Fn::Sub: arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${tweeterGetFeed.Arn}/invocations
+                requestTemplates: *commonRequestTemplates
+                responses: *commonAmazonResponses
+              responses: *commonSwaggerResponses
+
+          /story/list: ##### TODO:DONE Set endpoint URL
+            post:
+              summary: "Get a paged list of a user's story"
+              description: "Returns a paged list of a specific user's story"
+              consumes: *commonConsumes
+              produces: *commonProduces
+              x-amazon-apigateway-integration:
+                type: aws
+                httpMethod: POST
+                uri:
+                  ##### TODO: Set function name
+                  Fn::Sub: arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${tweeterGetStory.Arn}/invocations
+                requestTemplates: *commonRequestTemplates
+                responses: *commonAmazonResponses
+              responses: *commonSwaggerResponses
+
           #   #
           #   # TODO: ADD MORE ENDPOINT DEFINITIONS HERE
           #   #
@@ -188,7 +220,7 @@ Resources:
     Type: AWS::Serverless::Function
     Properties:
       FunctionName: tweeterGetFollowers ##### TODO: Set function name
-      Handler: lambda/follow/GetFolloweesLambda.handler ##### TODO: Set Handler
+      Handler: lambda/follow/GetFollowersLambda.handler ##### TODO: Set Handler
       Policies: *commonPolicies
       Events:
         PostApi:
@@ -197,6 +229,36 @@ Resources:
             RestApiId:
               Ref: tweeterApi
             Path: /follower/list ##### TODO: Set Path
+            Method: POST
+
+  tweeterGetFeed: ##### TODO: Set function name
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: tweeterGetFeed ##### TODO: Set function name
+      Handler: lambda/status/GetFeedLambda.handler ##### TODO: Set Handler
+      Policies: *commonPolicies
+      Events:
+        PostApi:
+          Type: Api
+          Properties:
+            RestApiId:
+              Ref: tweeterApi
+            Path: /feed/list ##### TODO: Set Path
+            Method: POST
+
+  tweeterGetStory: ##### TODO: Set function name
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: tweeterGetStory ##### TODO: Set function name
+      Handler: lambda/status/GetStoryLambda.handler ##### TODO: Set Handler
+      Policies: *commonPolicies
+      Events:
+        PostApi:
+          Type: Api
+          Properties:
+            RestApiId:
+              Ref: tweeterApi
+            Path: /story/list ##### TODO: Set Path
             Method: POST
 
   # #
