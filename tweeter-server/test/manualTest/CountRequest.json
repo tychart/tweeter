@@ -1,0 +1,9 @@
+{
+  "token": "myvalue1",
+  "user": {
+    "alias": "@tychart",
+    "firstName": "Tyler",
+    "lastName": "Chart",
+    "imageUrl": "https://example.com"
+  }
+}

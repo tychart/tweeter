@@ -1,4 +1,6 @@
 import {
+  CountRequest,
+  CountResponse,
   PagedStatusItemRequest,
   PagedStatusItemResponse,
   PagedUserItemRequest,
@@ -111,6 +113,24 @@ export class ServerFacade {
         return [items, response.hasMore];
       }
     } else {
+      console.error(response);
+      throw new Error(response.message ?? undefined);
+    }
+  }
+
+  public async getFollowerCount(request: CountRequest): Promise<number> {
+    const response = await this.clientCommunicator.doPost<
+      CountRequest,
+      CountResponse
+    >(request, "/follower/count");
+
+    this.handleErrors(response);
+
+    return response.count;
+  }
+
+  private handleErrors(response: any) {
+    if (!response.success) {
       console.error(response);
       throw new Error(response.message ?? undefined);
     }
