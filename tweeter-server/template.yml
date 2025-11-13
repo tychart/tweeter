@@ -181,6 +181,22 @@ Resources:
                 responses: *commonAmazonResponses
               responses: *commonSwaggerResponses
 
+          /followee/count: ##### TODO:DONE Set endpoint URL
+            post:
+              summary: "Gets the number of followees for a user"
+              description: "Returns a number representing the number of followees a user has"
+              consumes: *commonConsumes
+              produces: *commonProduces
+              x-amazon-apigateway-integration:
+                type: aws
+                httpMethod: POST
+                uri:
+                  ##### TODO: Set function name
+                  Fn::Sub: arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${tweeterGetFolloweeCount.Arn}/invocations
+                requestTemplates: *commonRequestTemplates
+                responses: *commonAmazonResponses
+              responses: *commonSwaggerResponses
+
           #   #
           #   # TODO: ADD MORE ENDPOINT DEFINITIONS HERE
           #   #
@@ -275,6 +291,21 @@ Resources:
             RestApiId:
               Ref: tweeterApi
             Path: /story/list ##### TODO: Set Path
+            Method: POST
+
+  tweeterGetFolloweeCount: ##### TODO: Set function name
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: tweeterGetFolloweeCount ##### TODO: Set function name
+      Handler: lambda/follow/GetFolloweeCountLambda.handler ##### TODO: Set Handler
+      Policies: *commonPolicies
+      Events:
+        PostApi:
+          Type: Api
+          Properties:
+            RestApiId:
+              Ref: tweeterApi
+            Path: /followee/count ##### TODO: Set Path
             Method: POST
 
   tweeterGetFollowerCount: ##### TODO: Set function name

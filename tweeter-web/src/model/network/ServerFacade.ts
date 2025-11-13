@@ -118,6 +118,17 @@ export class ServerFacade {
     }
   }
 
+  public async getFolloweeCount(request: CountRequest): Promise<number> {
+    const response = await this.clientCommunicator.doPost<
+      CountRequest,
+      CountResponse
+    >(request, "/followee/count");
+
+    this.handleErrors(response);
+
+    return response.count;
+  }
+
   public async getFollowerCount(request: CountRequest): Promise<number> {
     const response = await this.clientCommunicator.doPost<
       CountRequest,

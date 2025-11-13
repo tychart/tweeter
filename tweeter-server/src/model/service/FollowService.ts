@@ -53,6 +53,11 @@ export class FollowService implements Service {
   //     : new User(dto.firstName, dto.lastName, dto.alias, dto.imageUrl);
   // }
 
+  public async getFolloweeCount(token: string, user: UserDto): Promise<number> {
+    // TODO: Replace with the result of calling server
+    return FakeData.instance.getFolloweeCount(user.alias);
+  }
+
   public async getFollowerCount(token: string, user: UserDto): Promise<number> {
     // TODO: Replace with the result of calling server
 
