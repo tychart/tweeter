@@ -1,5 +1,5 @@
 import { AuthToken, User } from "tweeter-shared";
-import { UserInfoService } from "../model.service/UserInfoService";
+import { UserInfoService } from "../model/service/UserInfoService";
 import { MessageView, Presenter } from "./Presenter";
 
 export class UserInfoPresenter extends Presenter<MessageView> {

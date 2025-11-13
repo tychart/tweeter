@@ -2,7 +2,7 @@
 /dist
 /nodejs
 
-/layer/nodejs
+/layer
 
 dist.zip
 nodejs.zip
