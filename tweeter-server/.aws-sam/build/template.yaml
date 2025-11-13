@@ -1,0 +1,186 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: SAM config for Tweeter server
+Globals:
+  Function:
+    Runtime: nodejs22.x
+    CodeUri: ./dist/
+    Layers:
+    - Ref: tweeterLayer
+    Timeout: 30
+    MemorySize: 128
+Metadata:
+  x-common-policies:
+  - AWSLambdaBasicExecutionRole
+  - AmazonSESFullAccess
+  - CloudWatchFullAccess
+  - AmazonDynamoDBFullAccess
+  - AmazonS3FullAccess
+  - AmazonSQSFullAccess
+  x-common-cors-headers:
+    method.response.header.Access-Control-Allow-Origin: '''*'''
+  x-common-swagger-response-headers:
+    Access-Control-Allow-Origin:
+      type: string
+Resources:
+  tweeterApi:
+    Type: AWS::Serverless::Api
+    Properties:
+      Name: tweeterApi
+      StageName: prd
+      Cors:
+        AllowMethods: '''GET,POST,PUT,DELETE'''
+        AllowHeaders: '''*'''
+        AllowOrigin: '''*'''
+      DefinitionBody:
+        swagger: '2.0'
+        info:
+          title: Tweeter API
+          description: The API for interacting with the Lambda functions that run
+            the Tweeter project backend
+          version: '1.0'
+        x-common-consumes:
+        - application/json
+        x-common-produces:
+        - application/json
+        x-common-request-templates:
+          application/json: $input.json('$')
+        x-common-amazon-responses:
+          default:
+            statusCode: 200
+            responseParameters:
+              method.response.header.Access-Control-Allow-Origin: '''*'''
+          .*bad-request.*:
+            statusCode: 400
+            responseParameters:
+              method.response.header.Access-Control-Allow-Origin: '''*'''
+            responseTemplates:
+              application/json: '{ "error": "$input.path(''$.errorMessage'')" }'
+          .*unauthorized.*:
+            statusCode: 401
+            responseParameters:
+              method.response.header.Access-Control-Allow-Origin: '''*'''
+            responseTemplates:
+              application/json: '{ "error": "$input.path(''$.errorMessage'')" }'
+          .*internal-server-error.*:
+            statusCode: 500
+            responseParameters:
+              method.response.header.Access-Control-Allow-Origin: '''*'''
+            responseTemplates:
+              application/json: '{ "error": "$input.path(''$.errorMessage'')" }'
+        x-common-swagger-responses:
+          '200':
+            description: OK
+            headers:
+              Access-Control-Allow-Origin:
+                type: string
+          '400':
+            description: Bad Request
+            headers:
+              Access-Control-Allow-Origin:
+                type: string
+          '401':
+            description: Unauthorized
+            headers:
+              Access-Control-Allow-Origin:
+                type: string
+          '500':
+            description: Internal Server Error
+            headers:
+              Access-Control-Allow-Origin:
+                type: string
+        paths:
+          /followee/list:
+            post:
+              summary: Get a paged list of followees for a user
+              description: Returns a paged list of all users that the given user follows
+              consumes:
+              - application/json
+              produces:
+              - application/json
+              x-amazon-apigateway-integration:
+                type: aws
+                httpMethod: POST
+                uri:
+                  Fn::Sub: arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${tweeterGetFollowees.Arn}/invocations
+                requestTemplates:
+                  application/json: $input.json('$')
+                responses:
+                  default:
+                    statusCode: 200
+                    responseParameters:
+                      method.response.header.Access-Control-Allow-Origin: '''*'''
+                  .*bad-request.*:
+                    statusCode: 400
+                    responseParameters:
+                      method.response.header.Access-Control-Allow-Origin: '''*'''
+                    responseTemplates:
+                      application/json: '{ "error": "$input.path(''$.errorMessage'')"
+                        }'
+                  .*unauthorized.*:
+                    statusCode: 401
+                    responseParameters:
+                      method.response.header.Access-Control-Allow-Origin: '''*'''
+                    responseTemplates:
+                      application/json: '{ "error": "$input.path(''$.errorMessage'')"
+                        }'
+                  .*internal-server-error.*:
+                    statusCode: 500
+                    responseParameters:
+                      method.response.header.Access-Control-Allow-Origin: '''*'''
+                    responseTemplates:
+                      application/json: '{ "error": "$input.path(''$.errorMessage'')"
+                        }'
+              responses:
+                '200':
+                  description: OK
+                  headers:
+                    Access-Control-Allow-Origin:
+                      type: string
+                '400':
+                  description: Bad Request
+                  headers:
+                    Access-Control-Allow-Origin:
+                      type: string
+                '401':
+                  description: Unauthorized
+                  headers:
+                    Access-Control-Allow-Origin:
+                      type: string
+                '500':
+                  description: Internal Server Error
+                  headers:
+                    Access-Control-Allow-Origin:
+                      type: string
+  tweeterLayer:
+    Type: AWS::Serverless::LayerVersion
+    Properties:
+      LayerName: tweeterLayer
+      Description: dependencies layer for Tweeter server
+      ContentUri: ../../layer
+      CompatibleRuntimes:
+      - nodejs22.x
+      RetentionPolicy: DELETE
+  tweeterGetFollowees:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: tweeterGetFollowees
+      Handler: lambda/follow/GetFolloweesLambda.handler
+      Policies:
+      - AWSLambdaBasicExecutionRole
+      - AmazonSESFullAccess
+      - CloudWatchFullAccess
+      - AmazonDynamoDBFullAccess
+      - AmazonS3FullAccess
+      - AmazonSQSFullAccess
+      Events:
+        PostApi:
+          Type: Api
+          Properties:
+            RestApiId:
+              Ref: tweeterApi
+            Path: /followee/list
+            Method: POST
+      CodeUri: tweeterGetFollowees
+    Metadata:
+      SamResourceId: tweeterGetFollowees

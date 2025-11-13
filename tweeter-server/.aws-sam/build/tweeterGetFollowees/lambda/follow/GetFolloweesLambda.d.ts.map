@@ -1,0 +1,1 @@
+{"version":3,"file":"GetFolloweesLambda.d.ts","sourceRoot":"","sources":["../../../src/lambda/follow/GetFolloweesLambda.ts"],"names":[],"mappings":"AAAA,OAAO,EAAE,oBAAoB,EAAE,qBAAqB,EAAE,MAAM,gBAAgB,CAAC;AAG7E,eAAO,MAAM,OAAO,GAClB,SAAS,oBAAoB,KAC5B,OAAO,CAAC,qBAAqB,CAgB/B,CAAC"}
