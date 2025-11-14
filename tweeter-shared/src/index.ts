@@ -18,6 +18,7 @@ export type { PagedUserItemRequest } from "./model/net/request/PagedUserItemRequ
 export type { PagedStatusItemRequest } from "./model/net/request/PagedStatusItemRequest";
 export type { CountRequest } from "./model/net/request/CountRequest";
 export type { IsFollowerRequest } from "./model/net/request/IsFollowerRequest";
+export type { PostStatusRequest } from "./model/net/request/PostStatusRequest";
 
 // Responses //
 export type { TweeterResponse } from "./model/net/response/TweeterResponse";

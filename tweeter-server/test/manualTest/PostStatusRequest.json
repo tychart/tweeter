@@ -1,0 +1,14 @@
+{
+  "token": "myvalue1",
+  "userAlias": "@tychart",
+  "status": {
+    "post": "Hello world",
+    "user": {
+      "alias": "@tychart",
+      "firstName": "Tyler",
+      "lastName": "Chart",
+      "imageUrl": "https://example.com"
+    },
+    "timestamp": 5
+  }
+}

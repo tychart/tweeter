@@ -7,12 +7,15 @@ import {
   PagedStatusItemResponse,
   PagedUserItemRequest,
   PagedUserItemResponse,
+  PostStatusRequest,
   Status,
   StatusDto,
+  TweeterResponse,
   User,
   UserDto,
 } from "tweeter-shared";
 import { ClientCommunicator } from "./ClientCommunicator";
+import { PrimaryExpression } from "typescript";
 
 export class ServerFacade {
   private SERVER_URL =
@@ -120,7 +123,16 @@ export class ServerFacade {
     }
   }
 
-  // public async postStatus
+  public async postStatus(request: PostStatusRequest): Promise<boolean> {
+    const response = await this.clientCommunicator.doPost<
+      PostStatusRequest,
+      TweeterResponse
+    >(request, "/user/post");
+
+    this.handleErrors(response);
+
+    return response.success;
+  }
 
   public async getFolloweeCount(request: CountRequest): Promise<number> {
     const response = await this.clientCommunicator.doPost<

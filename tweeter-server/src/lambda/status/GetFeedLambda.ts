@@ -7,9 +7,9 @@ import { StatusService } from "../../model/service/StatusService";
 export const handler = async (
   request: PagedStatusItemRequest
 ): Promise<PagedStatusItemResponse> => {
-  const followService = new StatusService();
+  const statusService = new StatusService();
 
-  const [items, hasMore] = await followService.loadMoreFeedItems(
+  const [items, hasMore] = await statusService.loadMoreFeedItems(
     request.token,
     request.userAlias,
     request.pageSize,

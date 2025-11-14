@@ -213,6 +213,22 @@ Resources:
                 responses: *commonAmazonResponses
               responses: *commonSwaggerResponses
 
+          /user/post: ##### TODO:DONE Set endpoint URL
+            post:
+              summary: "Post a status"
+              description: "Posts a status for the specified user"
+              consumes: *commonConsumes
+              produces: *commonProduces
+              x-amazon-apigateway-integration:
+                type: aws
+                httpMethod: POST
+                uri:
+                  ##### TODO: Set function name
+                  Fn::Sub: arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${tweeterPostStatus.Arn}/invocations
+                requestTemplates: *commonRequestTemplates
+                responses: *commonAmazonResponses
+              responses: *commonSwaggerResponses
+
           #   #
           #   # TODO: ADD MORE ENDPOINT DEFINITIONS HERE
           #   #
@@ -352,6 +368,21 @@ Resources:
             RestApiId:
               Ref: tweeterApi
             Path: /follower/status ##### TODO: Set Path
+            Method: POST
+
+  tweeterPostStatus: ##### TODO: Set function name
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: tweeterPostStatus ##### TODO: Set function name
+      Handler: lambda/status/PostStatusLambda.handler ##### TODO: Set Handler
+      Policies: *commonPolicies
+      Events:
+        PostApi:
+          Type: Api
+          Properties:
+            RestApiId:
+              Ref: tweeterApi
+            Path: /user/post ##### TODO: Set Path
             Method: POST
 
   # #

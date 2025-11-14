@@ -31,27 +31,31 @@ export class StatusService implements Service {
       pageSize
     );
 
-    console.log("getFakeData:lastItem =", JSON.stringify(lastItem));
-    console.log("getFakeData:pageSize =", pageSize);
+    // console.log("getFakeData:lastItem =", JSON.stringify(lastItem));
+    // console.log("getFakeData:pageSize =", pageSize);
 
-    const cursor = Status.fromDto(lastItem as any); // current signature forces `any`
-    console.log("cursor after fromDto:", cursor);
+    // const cursor = Status.fromDto(lastItem as any); // current signature forces `any`
+    // console.log("cursor after fromDto:", cursor);
 
-    console.log("returned count:", items.length, "hasMore:", hasMore);
+    // console.log("returned count:", items.length, "hasMore:", hasMore);
 
     const dtos = items.map((status) => status.dto);
 
-    console.log("last dto returned:", dtos[dtos.length - 1]);
+    // console.log("last dto returned:", dtos[dtos.length - 1]);
 
     return [dtos, hasMore];
   }
 
   public async postStatus(
-    authToken: AuthToken,
-    newStatus: Status
-  ): Promise<void> {
+    token: string,
+    userAlias: string,
+    newStatus: StatusDto
+  ): Promise<boolean> {
     // Pause so we can see the logging out message. Remove when connected to the server
     await new Promise((f) => setTimeout(f, 2000));
+    console.log("Just (fakely) 'posted': ", newStatus.post);
+
+    return true;
 
     // TODO: Call the server to post the status
   }
