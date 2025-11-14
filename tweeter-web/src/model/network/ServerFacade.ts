@@ -1,6 +1,8 @@
 import {
   CountRequest,
   CountResponse,
+  GetUserRequest,
+  GetUserResponse,
   IsFollowerRequest,
   IsFollowerResponse,
   PagedStatusItemRequest,
@@ -179,6 +181,20 @@ export class ServerFacade {
     return response.isFollower;
   }
 
+  public async getUser(request: GetUserRequest): Promise<User | null> {
+    const response = await this.clientCommunicator.doPost<
+      GetUserRequest,
+      GetUserResponse
+    >(request, "/user/get");
+
+    this.handleErrors(response);
+
+    if (response.user === null) {
+      return null;
+    }
+
+    return User.fromDto(response.user);
+  }
   private handleErrors(response: any) {
     if (!response.success) {
       console.error(response);

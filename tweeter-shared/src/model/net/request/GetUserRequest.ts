@@ -1,6 +1,5 @@
 import { AuthenticatedRequest } from "./AuthenticatedRequest";
 
-export interface PagedItemRequest extends AuthenticatedRequest {
+export interface GetUserRequest extends AuthenticatedRequest {
   readonly userAlias: string;
-  readonly pageSize: number;
 }

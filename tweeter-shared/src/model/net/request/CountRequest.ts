@@ -1,6 +1,7 @@
 import { UserDto } from "../../dto/UserDto";
-import { TweeterRequest } from "./TweeterRequest";
+import { AuthenticatedRequest } from "./AuthenticatedRequest";
 
-export interface CountRequest extends TweeterRequest {
+export interface CountRequest extends AuthenticatedRequest {
+  readonly userAlias: string;
   readonly user: UserDto;
 }

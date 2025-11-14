@@ -229,6 +229,22 @@ Resources:
                 responses: *commonAmazonResponses
               responses: *commonSwaggerResponses
 
+          /user/get: ##### TODO:DONE Set endpoint URL
+            post:
+              summary: "Get a user"
+              description: "Get a user by alias, if none is found, return null"
+              consumes: *commonConsumes
+              produces: *commonProduces
+              x-amazon-apigateway-integration:
+                type: aws
+                httpMethod: POST
+                uri:
+                  ##### TODO: Set function name
+                  Fn::Sub: arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${tweeterGetUser.Arn}/invocations
+                requestTemplates: *commonRequestTemplates
+                responses: *commonAmazonResponses
+              responses: *commonSwaggerResponses
+
           #   #
           #   # TODO: ADD MORE ENDPOINT DEFINITIONS HERE
           #   #
@@ -383,6 +399,21 @@ Resources:
             RestApiId:
               Ref: tweeterApi
             Path: /user/post ##### TODO: Set Path
+            Method: POST
+
+  tweeterGetUser: ##### TODO: Set function name
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: tweeterGetUser ##### TODO: Set function name
+      Handler: lambda/user/GetUserLambda.handler ##### TODO: Set Handler
+      Policies: *commonPolicies
+      Events:
+        PostApi:
+          Type: Api
+          Properties:
+            RestApiId:
+              Ref: tweeterApi
+            Path: /user/get ##### TODO: Set Path
             Method: POST
 
   # #
