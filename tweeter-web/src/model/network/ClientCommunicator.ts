@@ -20,7 +20,8 @@ export class ClientCommunicator {
       });
     }
 
-    console.log(`The request body is '${JSON.stringify(req)}'`);
+    // console.log("-------------------------");
+    // console.log(`The request body is '${JSON.stringify(req)}'`);
 
     const url = this.getUrl(endpoint);
     const params = this.getParams(
@@ -29,10 +30,20 @@ export class ClientCommunicator {
       req ? JSON.stringify(req) : req
     );
 
-    console.log(`Fetching '${url}' with params '${JSON.stringify(params)}'`);
+    // console.log(`Fetching '${url}' with params '${JSON.stringify(params)}'`);
 
     try {
       const resp: Response = await fetch(url, params);
+
+      console.log("-------------------------");
+      console.log(`Rquest to '${url}' with params: `, params.body);
+
+      // Log body as text (from a clone, so we don't consume the original)
+      const debugText = await resp.clone().text();
+      const debugResp = await resp.clone().json();
+
+      console.log(`Response body from '${url}': `, debugResp);
+      console.log("-------------------------");
 
       if (resp.ok) {
         // Be careful with the return type here. resp.json() returns Promise<any> which means there is no type checking on response.

@@ -33,7 +33,7 @@ const PostStatus = (props?: Props) => {
 
   const submitPost = async (event: React.MouseEvent) => {
     event.preventDefault();
-    presenterRef.current.submitPost(authToken, currentUser, post);
+    presenterRef.current.submitPost(authToken!, currentUser!, post);
   };
 
   const clearPost = (event: React.MouseEvent) => {

@@ -83,9 +83,9 @@ export class ServerFacade {
       if (items == null) {
         throw new Error(errorMsg);
       } else {
-        console.log(
-          `This is the value of response.hasMore: ${response.hasMore}`
-        );
+        // console.log(
+        //   `This is the value of response.hasMore: ${response.hasMore}`
+        // );
         return [items, response.hasMore];
       }
     } else {
@@ -109,9 +109,9 @@ export class ServerFacade {
       if (items == null) {
         throw new Error(errorMsg);
       } else {
-        console.log("This is the value of response: ", response);
-        console.log("These are the items after conversion");
-        console.log(items);
+        // console.log("This is the value of response: ", response);
+        // console.log("These are the items after conversion");
+        // console.log(items);
         return [items, response.hasMore];
       }
     } else {
@@ -119,6 +119,8 @@ export class ServerFacade {
       throw new Error(response.message ?? undefined);
     }
   }
+
+  // public async postStatus
 
   public async getFolloweeCount(request: CountRequest): Promise<number> {
     const response = await this.clientCommunicator.doPost<
@@ -145,20 +147,20 @@ export class ServerFacade {
   public async getIsFollowerStatus(
     request: IsFollowerRequest
   ): Promise<boolean> {
-    console.log(
-      "This is the request from serverFacade.getIsFollowerStatus: ",
-      request
-    );
+    // console.log(
+    //   "This is the request from serverFacade.getIsFollowerStatus: ",
+    //   request
+    // );
 
     const response = await this.clientCommunicator.doPost<
       IsFollowerRequest,
       IsFollowerResponse
     >(request, "/follower/status");
 
-    console.log(
-      "This is the response from serverFacade.getIsFollowerStatus: ",
-      response
-    );
+    // console.log(
+    //   "This is the response from serverFacade.getIsFollowerStatus: ",
+    //   response
+    // );
 
     this.handleErrors(response);
 
