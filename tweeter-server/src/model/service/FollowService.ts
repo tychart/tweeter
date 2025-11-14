@@ -63,4 +63,13 @@ export class FollowService implements Service {
 
     return FakeData.instance.getFollowerCount(user.alias);
   }
+
+  public async getIsFollowerStatus(
+    token: string,
+    user: UserDto,
+    selectedUser: UserDto
+  ): Promise<boolean> {
+    // TODO: Replace with the result of calling server
+    return FakeData.instance.isFollower();
+  }
 }
