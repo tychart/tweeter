@@ -1,6 +1,8 @@
 import {
   CountRequest,
   CountResponse,
+  IsFollowerRequest,
+  IsFollowerResponse,
   PagedStatusItemRequest,
   PagedStatusItemResponse,
   PagedUserItemRequest,
@@ -138,6 +140,29 @@ export class ServerFacade {
     this.handleErrors(response);
 
     return response.count;
+  }
+
+  public async getIsFollowerStatus(
+    request: IsFollowerRequest
+  ): Promise<boolean> {
+    console.log(
+      "This is the request from serverFacade.getIsFollowerStatus: ",
+      request
+    );
+
+    const response = await this.clientCommunicator.doPost<
+      IsFollowerRequest,
+      IsFollowerResponse
+    >(request, "/follower/status");
+
+    console.log(
+      "This is the response from serverFacade.getIsFollowerStatus: ",
+      response
+    );
+
+    this.handleErrors(response);
+
+    return response.isFollower;
   }
 
   private handleErrors(response: any) {

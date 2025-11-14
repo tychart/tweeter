@@ -165,6 +165,22 @@ Resources:
                 responses: *commonAmazonResponses
               responses: *commonSwaggerResponses
 
+          /followee/count: ##### TODO:DONE Set endpoint URL
+            post:
+              summary: "Gets the number of followees for a user"
+              description: "Returns a number representing the number of followees a user has"
+              consumes: *commonConsumes
+              produces: *commonProduces
+              x-amazon-apigateway-integration:
+                type: aws
+                httpMethod: POST
+                uri:
+                  ##### TODO: Set function name
+                  Fn::Sub: arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${tweeterGetFolloweeCount.Arn}/invocations
+                requestTemplates: *commonRequestTemplates
+                responses: *commonAmazonResponses
+              responses: *commonSwaggerResponses
+
           /follower/count: ##### TODO:DONE Set endpoint URL
             post:
               summary: "Gets the number of followers for a user"
@@ -181,10 +197,10 @@ Resources:
                 responses: *commonAmazonResponses
               responses: *commonSwaggerResponses
 
-          /followee/count: ##### TODO:DONE Set endpoint URL
+          /follower/status: ##### TODO:DONE Set endpoint URL
             post:
-              summary: "Gets the number of followees for a user"
-              description: "Returns a number representing the number of followees a user has"
+              summary: "Gets if a user is a follower of another user"
+              description: "Returns a boolean value representing if the user follows the selectedUser"
               consumes: *commonConsumes
               produces: *commonProduces
               x-amazon-apigateway-integration:
@@ -192,7 +208,7 @@ Resources:
                 httpMethod: POST
                 uri:
                   ##### TODO: Set function name
-                  Fn::Sub: arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${tweeterGetFolloweeCount.Arn}/invocations
+                  Fn::Sub: arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${tweeterGetFollowerStatus.Arn}/invocations
                 requestTemplates: *commonRequestTemplates
                 responses: *commonAmazonResponses
               responses: *commonSwaggerResponses
@@ -321,6 +337,21 @@ Resources:
             RestApiId:
               Ref: tweeterApi
             Path: /follower/count ##### TODO: Set Path
+            Method: POST
+
+  tweeterGetFollowerStatus: ##### TODO: Set function name
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: tweeterGetFollowerStatus ##### TODO: Set function name
+      Handler: lambda/follow/GetFollowerStatusLambda.handler ##### TODO: Set Handler
+      Policies: *commonPolicies
+      Events:
+        PostApi:
+          Type: Api
+          Properties:
+            RestApiId:
+              Ref: tweeterApi
+            Path: /follower/status ##### TODO: Set Path
             Method: POST
 
   # #
