@@ -24,3 +24,23 @@ Rebuild either module of the project (tweeter-shared or tweeter-web) by running 
 ## Running the Project
 
 Run the project by running 'npm start' from within the 'tweeter-web' folder.
+
+## Testing Notes
+
+To curl the new endpoint:
+
+```
+curl -X POST --data-binary @/home/tychart/projects/tweeter/tweeter-server/test/manualTest/LoginRequest.json https://sn17mfphg5.execute-api.us-west-2.amazonaws.com/prd/user/login
+```
+
+To deploy the template.yml using SAM:
+
+```
+tychart@ubudesk(ubu25.04) ~/projects/tweeter/tweeter-server $ sam build && sam deploy --no-confirm-changeset
+```
+
+To hard copy over the folder into tweeter-server to avoid the error with symbolic links:
+
+```
+tychart@ubudesk(ubu25.04) ~/projects/tweeter/tweeter-server/layer/nodejs/node_modules $ rm -r tweeter-shared && cp -r ../../../../tweeter-shared/ .
+```

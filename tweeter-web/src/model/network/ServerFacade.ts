@@ -1,10 +1,13 @@
 import {
+  AuthToken,
   CountRequest,
   CountResponse,
   GetUserRequest,
   GetUserResponse,
   IsFollowerRequest,
   IsFollowerResponse,
+  LoginRequest,
+  LoginResponse,
   PagedStatusItemRequest,
   PagedStatusItemResponse,
   PagedUserItemRequest,
@@ -195,6 +198,29 @@ export class ServerFacade {
 
     return User.fromDto(response.user);
   }
+
+  public async login(request: LoginRequest): Promise<[User, AuthToken]> {
+    const response = await this.clientCommunicator.doPost<
+      LoginRequest,
+      LoginResponse
+    >(request, "/user/login");
+
+    this.handleErrors(response);
+
+    if (
+      response.user === null ||
+      response.token === null ||
+      response.tokenTimestamp === null
+    ) {
+      throw new Error("Invalid alias or password");
+    }
+
+    return [
+      User.fromDto(response.user)!,
+      new AuthToken(response.token, response.tokenTimestamp),
+    ];
+  }
+
   private handleErrors(response: any) {
     if (!response.success) {
       console.error(response);

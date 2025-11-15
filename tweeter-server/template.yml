@@ -245,6 +245,22 @@ Resources:
                 responses: *commonAmazonResponses
               responses: *commonSwaggerResponses
 
+          /user/login: ##### TODO:DONE Set endpoint URL
+            post:
+              summary: "Endpoint to login"
+              description: "If the credentials are correct, this will return the user and an authtoken"
+              consumes: *commonConsumes
+              produces: *commonProduces
+              x-amazon-apigateway-integration:
+                type: aws
+                httpMethod: POST
+                uri:
+                  ##### TODO: Set function name
+                  Fn::Sub: arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${tweeterLogin.Arn}/invocations
+                requestTemplates: *commonRequestTemplates
+                responses: *commonAmazonResponses
+              responses: *commonSwaggerResponses
+
           #   #
           #   # TODO: ADD MORE ENDPOINT DEFINITIONS HERE
           #   #
@@ -414,6 +430,21 @@ Resources:
             RestApiId:
               Ref: tweeterApi
             Path: /user/get ##### TODO: Set Path
+            Method: POST
+
+  tweeterLogin: ##### TODO: Set function name
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: tweeterLogin ##### TODO: Set function name
+      Handler: lambda/user/LoginLambda.handler ##### TODO: Set Handler
+      Policies: *commonPolicies
+      Events:
+        PostApi:
+          Type: Api
+          Properties:
+            RestApiId:
+              Ref: tweeterApi
+            Path: /user/login ##### TODO: Set Path
             Method: POST
 
   # #

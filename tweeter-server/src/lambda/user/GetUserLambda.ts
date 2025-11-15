@@ -5,7 +5,6 @@ export const handler = async (
   request: GetUserRequest
 ): Promise<GetUserResponse> => {
   const userService = new UserService();
-  let found: boolean = true;
 
   const retrievedUser: UserDto | null = await userService.getUser(
     request.token,
@@ -13,11 +12,15 @@ export const handler = async (
   );
 
   if (retrievedUser === null) {
-    found = false;
+    return {
+      success: false,
+      message: "Did not find the requested user",
+      user: retrievedUser,
+    };
   }
 
   return {
-    success: found,
+    success: true,
     message: null,
     user: retrievedUser,
   };
