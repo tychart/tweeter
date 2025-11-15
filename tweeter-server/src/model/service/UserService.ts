@@ -35,28 +35,28 @@ export class UserService implements Service {
     lastName: string,
     alias: string,
     password: string,
-    userImageBytes: Uint8Array,
+    imageStringBase64: string,
     imageFileExtension: string
-  ): Promise<[User, AuthToken]> {
-    // Not neded now, but will be needed when you make the request to the server in milestone 3
-    const imageStringBase64: string =
-      Buffer.from(userImageBytes).toString("base64");
-
+  ): Promise<[UserDto | null, AuthToken | null]> {
     // TODO: Replace with the result of calling the server
     const user = FakeData.instance.firstUser;
 
     if (user === null) {
-      throw new Error("Invalid registration");
+      return [null, null];
     }
 
-    return [user, FakeData.instance.authToken];
+    return [user.dto, FakeData.instance.authToken];
   }
 
   // In this file, he has login, register and logout, to see go to here:
   // https://youtu.be/sZ2ezpJXXQo?t=2284
 
-  public async logout(authToken: AuthToken): Promise<void> {
+  public async logout(token: string): Promise<boolean> {
     // Pause so we can see the logging out message. Delete when the call to the server is implemented.
     await new Promise((res) => setTimeout(res, 1000));
+
+    console.log("Just (fakely) logged out");
+
+    return true;
   }
 }

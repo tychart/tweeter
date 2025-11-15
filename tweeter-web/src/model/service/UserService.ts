@@ -56,13 +56,26 @@ export class UserService implements Service {
       Buffer.from(userImageBytes).toString("base64");
 
     // TODO: Replace with the result of calling the server
-    const user = FakeData.instance.firstUser;
+    // const user = FakeData.instance.firstUser;
 
-    if (user === null) {
-      throw new Error("Invalid registration");
-    }
+    // if (user === null) {
+    //   throw new Error("Invalid registration");
+    // }
 
-    return [user, FakeData.instance.authToken];
+    // return [user, FakeData.instance.authToken];
+
+    const serverFacade = new ServerFacade();
+
+    const [user, authToken] = await serverFacade.register({
+      firstName: firstName,
+      lastName: lastName,
+      userAlias: alias,
+      password: password,
+      imageStringBase64: imageStringBase64,
+      imageFileExtension: imageFileExtension,
+    });
+
+    return [user, authToken];
   }
 
   // In this file, he has login, register and logout, to see go to here:
@@ -70,6 +83,10 @@ export class UserService implements Service {
 
   public async logout(authToken: AuthToken): Promise<void> {
     // Pause so we can see the logging out message. Delete when the call to the server is implemented.
-    await new Promise((res) => setTimeout(res, 1000));
+    // await new Promise((res) => setTimeout(res, 1000));
+
+    const serverFacade = new ServerFacade();
+
+    await serverFacade.logout(authToken);
   }
 }

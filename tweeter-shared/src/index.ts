@@ -14,6 +14,7 @@ export type { StatusDto } from "./model/dto/StatusDto";
 
 // Requests //
 export type { TweeterRequest } from "./model/net/request/TweeterRequest";
+export type { AuthenticatedRequest } from "./model/net/request/AuthenticatedRequest";
 export type { PagedUserItemRequest } from "./model/net/request/PagedUserItemRequest";
 export type { PagedStatusItemRequest } from "./model/net/request/PagedStatusItemRequest";
 export type { CountRequest } from "./model/net/request/CountRequest";
@@ -21,6 +22,7 @@ export type { IsFollowerRequest } from "./model/net/request/IsFollowerRequest";
 export type { PostStatusRequest } from "./model/net/request/PostStatusRequest";
 export type { GetUserRequest } from "./model/net/request/GetUserRequest";
 export type { LoginRequest } from "./model/net/request/LoginRequest";
+export type { RegisterRequest } from "./model/net/request/RegisterRequest";
 
 // Responses //
 export type { TweeterResponse } from "./model/net/response/TweeterResponse";

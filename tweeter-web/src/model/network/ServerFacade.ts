@@ -1,4 +1,5 @@
 import {
+  AuthenticatedRequest,
   AuthToken,
   CountRequest,
   CountResponse,
@@ -13,6 +14,7 @@ import {
   PagedUserItemRequest,
   PagedUserItemResponse,
   PostStatusRequest,
+  RegisterRequest,
   Status,
   StatusDto,
   TweeterResponse,
@@ -219,6 +221,41 @@ export class ServerFacade {
       User.fromDto(response.user)!,
       new AuthToken(response.token, response.tokenTimestamp),
     ];
+  }
+
+  public async register(request: RegisterRequest): Promise<[User, AuthToken]> {
+    const response = await this.clientCommunicator.doPost<
+      RegisterRequest,
+      LoginResponse
+    >(request, "/user/register");
+
+    this.handleErrors(response);
+
+    if (
+      response.user === null ||
+      response.token === null ||
+      response.tokenTimestamp === null
+    ) {
+      throw new Error(
+        "There was an error where the recently registered user or recently generated authtoken were null"
+      );
+    }
+
+    return [
+      User.fromDto(response.user)!,
+      new AuthToken(response.token, response.tokenTimestamp),
+    ];
+  }
+
+  public async logout(request: AuthenticatedRequest): Promise<boolean> {
+    const response = await this.clientCommunicator.doPost<
+      AuthenticatedRequest,
+      TweeterResponse
+    >(request, "/user/logout");
+
+    this.handleErrors(response);
+
+    return response.success;
   }
 
   private handleErrors(response: any) {

@@ -261,6 +261,38 @@ Resources:
                 responses: *commonAmazonResponses
               responses: *commonSwaggerResponses
 
+          /user/register: ##### TODO:DONE Set endpoint URL
+            post:
+              summary: "Endpoint to register a new user"
+              description: "This will return the new user and an authtoken"
+              consumes: *commonConsumes
+              produces: *commonProduces
+              x-amazon-apigateway-integration:
+                type: aws
+                httpMethod: POST
+                uri:
+                  ##### TODO: Set function name
+                  Fn::Sub: arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${tweeterRegister.Arn}/invocations
+                requestTemplates: *commonRequestTemplates
+                responses: *commonAmazonResponses
+              responses: *commonSwaggerResponses
+
+          /user/logout: ##### TODO:DONE Set endpoint URL
+            post:
+              summary: "Endpoint to logout the user"
+              description: "This will invalidate the authtoken sent"
+              consumes: *commonConsumes
+              produces: *commonProduces
+              x-amazon-apigateway-integration:
+                type: aws
+                httpMethod: POST
+                uri:
+                  ##### TODO: Set function name
+                  Fn::Sub: arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${tweeterLogout.Arn}/invocations
+                requestTemplates: *commonRequestTemplates
+                responses: *commonAmazonResponses
+              responses: *commonSwaggerResponses
+
           #   #
           #   # TODO: ADD MORE ENDPOINT DEFINITIONS HERE
           #   #
@@ -445,6 +477,36 @@ Resources:
             RestApiId:
               Ref: tweeterApi
             Path: /user/login ##### TODO: Set Path
+            Method: POST
+
+  tweeterRegister: ##### TODO: Set function name
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: tweeterRegister ##### TODO: Set function name
+      Handler: lambda/user/RegisterLambda.handler ##### TODO: Set Handler
+      Policies: *commonPolicies
+      Events:
+        PostApi:
+          Type: Api
+          Properties:
+            RestApiId:
+              Ref: tweeterApi
+            Path: /user/register ##### TODO: Set Path
+            Method: POST
+
+  tweeterLogout: ##### TODO: Set function name
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: tweeterLogout ##### TODO: Set function name
+      Handler: lambda/user/LogoutLambda.handler ##### TODO: Set Handler
+      Policies: *commonPolicies
+      Events:
+        PostApi:
+          Type: Api
+          Properties:
+            RestApiId:
+              Ref: tweeterApi
+            Path: /user/logout ##### TODO: Set Path
             Method: POST
 
   # #
