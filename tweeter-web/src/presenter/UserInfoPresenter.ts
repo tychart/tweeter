@@ -81,19 +81,23 @@ export class UserInfoPresenter extends Presenter<MessageView> {
 
     // TODO: Call the server
 
-    // const followerCount = await this.followService.getFollowerCount(
-    //   authToken,
-    //   userToFollow
-    // );
-    // const followeeCount = await this.followService.getFolloweeCount(
-    //   authToken,
-    //   userToFollow
-    // );
-
-    const [followerCount, followeeCount] = await this.followService.follow(
+    const successfullyFollowed = await this.followService.follow(
       authToken,
       userToFollow
     );
+
+    const followerCount = await this.followService.getFollowerCount(
+      authToken,
+      userToFollow
+    );
+    const followeeCount = await this.followService.getFolloweeCount(
+      authToken,
+      userToFollow
+    );
+
+    if (!successfullyFollowed) {
+      throw new Error("Failed to follow");
+    }
 
     this._isFollower = true;
     this._followerCount = followerCount;
@@ -111,19 +115,23 @@ export class UserInfoPresenter extends Presenter<MessageView> {
 
     // // TODO: Call the server
 
-    // const followerCount = await this.followService.getFollowerCount(
-    //   authToken,
-    //   userToUnfollow
-    // );
-    // const followeeCount = await this.followService.getFolloweeCount(
-    //   authToken,
-    //   userToUnfollow
-    // );
-
-    const [followerCount, followeeCount] = await this.followService.unfollow(
+    const successfullyUnfollowed = await this.followService.unfollow(
       authToken,
       userToUnfollow
     );
+
+    const followerCount = await this.followService.getFollowerCount(
+      authToken,
+      userToUnfollow
+    );
+    const followeeCount = await this.followService.getFolloweeCount(
+      authToken,
+      userToUnfollow
+    );
+
+    if (!successfullyUnfollowed) {
+      throw new Error("Failed to unfollow");
+    }
 
     this._isFollower = false;
     this._followerCount = followerCount;
