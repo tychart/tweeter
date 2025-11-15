@@ -48,7 +48,6 @@ export class StatusService implements Service {
 
   public async postStatus(
     token: string,
-    userAlias: string,
     newStatus: StatusDto
   ): Promise<boolean> {
     // Pause so we can see the logging out message. Remove when connected to the server
