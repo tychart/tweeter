@@ -3,6 +3,7 @@ import {
   AuthToken,
   CountRequest,
   CountResponse,
+  FollowChangeRequest,
   GetUserRequest,
   GetUserResponse,
   IsFollowerRequest,
@@ -252,6 +253,28 @@ export class ServerFacade {
       AuthenticatedRequest,
       TweeterResponse
     >(request, "/user/logout");
+
+    this.handleErrors(response);
+
+    return response.success;
+  }
+
+  public async follow(request: FollowChangeRequest): Promise<boolean> {
+    const response = await this.clientCommunicator.doPost<
+      FollowChangeRequest,
+      TweeterResponse
+    >(request, "/follow/follow");
+
+    this.handleErrors(response);
+
+    return response.success;
+  }
+
+  public async unfollow(request: FollowChangeRequest): Promise<boolean> {
+    const response = await this.clientCommunicator.doPost<
+      FollowChangeRequest,
+      TweeterResponse
+    >(request, "/follow/unfollow");
 
     this.handleErrors(response);
 

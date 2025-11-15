@@ -72,4 +72,25 @@ export class FollowService implements Service {
     // TODO: Replace with the result of calling server
     return FakeData.instance.isFollower();
   }
+
+  public async follow(token: string, userToFollow: UserDto): Promise<boolean> {
+    // Pause so we can see the follow message. Remove when connected to the server
+    await new Promise((f) => setTimeout(f, 2000));
+
+    // TODO: Call the server
+
+    return true;
+  }
+
+  public async unfollow(
+    token: string,
+    userToUnfollow: UserDto
+  ): Promise<boolean> {
+    // Pause so we can see the unfollow message. Remove when connected to the server
+    await new Promise((f) => setTimeout(f, 2000));
+
+    // TODO: Call the server
+
+    return true;
+  }
 }

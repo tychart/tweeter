@@ -110,11 +110,17 @@ export class FollowService implements Service {
     userToFollow: User
   ): Promise<boolean> {
     // Pause so we can see the follow message. Remove when connected to the server
-    await new Promise((f) => setTimeout(f, 2000));
+    // await new Promise((f) => setTimeout(f, 2000));
 
     // TODO: Call the server
 
-    return true;
+    const serverFacade = new ServerFacade();
+    const followSuccess = serverFacade.follow({
+      token: authToken.token,
+      user: userToFollow.dto,
+    });
+
+    return followSuccess;
   }
 
   public async unfollow(
@@ -126,6 +132,12 @@ export class FollowService implements Service {
 
     // TODO: Call the server
 
-    return true;
+    const serverFacade = new ServerFacade();
+    const unfollowSuccess = serverFacade.unfollow({
+      token: authToken.token,
+      user: userToUnfollow.dto,
+    });
+
+    return unfollowSuccess;
   }
 }

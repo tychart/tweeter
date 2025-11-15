@@ -293,6 +293,38 @@ Resources:
                 responses: *commonAmazonResponses
               responses: *commonSwaggerResponses
 
+          /follow/follow: ##### TODO:DONE Set endpoint URL
+            post:
+              summary: "Endpoint to follow the specified user"
+              description: "This will follow the user specified"
+              consumes: *commonConsumes
+              produces: *commonProduces
+              x-amazon-apigateway-integration:
+                type: aws
+                httpMethod: POST
+                uri:
+                  ##### TODO: Set function name
+                  Fn::Sub: arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${tweeterFollow.Arn}/invocations
+                requestTemplates: *commonRequestTemplates
+                responses: *commonAmazonResponses
+              responses: *commonSwaggerResponses
+
+          /follow/unfollow: ##### TODO:DONE Set endpoint URL
+            post:
+              summary: "Endpoint to unfollow the specified user"
+              description: "This will unfollow the user specified"
+              consumes: *commonConsumes
+              produces: *commonProduces
+              x-amazon-apigateway-integration:
+                type: aws
+                httpMethod: POST
+                uri:
+                  ##### TODO: Set function name
+                  Fn::Sub: arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${tweeterUnfollow.Arn}/invocations
+                requestTemplates: *commonRequestTemplates
+                responses: *commonAmazonResponses
+              responses: *commonSwaggerResponses
+
           #   #
           #   # TODO: ADD MORE ENDPOINT DEFINITIONS HERE
           #   #
@@ -507,6 +539,36 @@ Resources:
             RestApiId:
               Ref: tweeterApi
             Path: /user/logout ##### TODO: Set Path
+            Method: POST
+
+  tweeterFollow: ##### TODO: Set function name
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: tweeterFollow ##### TODO: Set function name
+      Handler: lambda/follow/FollowLambda.handler ##### TODO: Set Handler
+      Policies: *commonPolicies
+      Events:
+        PostApi:
+          Type: Api
+          Properties:
+            RestApiId:
+              Ref: tweeterApi
+            Path: /follow/follow ##### TODO: Set Path
+            Method: POST
+
+  tweeterUnfollow: ##### TODO: Set function name
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: tweeterUnfollow ##### TODO: Set function name
+      Handler: lambda/follow/UnfollowLambda.handler ##### TODO: Set Handler
+      Policies: *commonPolicies
+      Events:
+        PostApi:
+          Type: Api
+          Properties:
+            RestApiId:
+              Ref: tweeterApi
+            Path: /follow/unfollow ##### TODO: Set Path
             Method: POST
 
   # #
