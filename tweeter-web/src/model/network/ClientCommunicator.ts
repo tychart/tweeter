@@ -35,15 +35,18 @@ export class ClientCommunicator {
     try {
       const resp: Response = await fetch(url, params);
 
-      console.log("-------------------------");
-      console.log(`Rquest to '${url}' with params: `, params.body);
+      // //////////////////////////////////////////////////////////
+      // // Useful Block To Quick Enable or Disable For Debugging
+      // console.log("-------------------------");
+      // console.log(`Rquest to '${url}' with params: `, params.body);
 
-      // Log body as text (from a clone, so we don't consume the original)
-      const debugText = await resp.clone().text();
-      const debugResp = await resp.clone().json();
+      // // Log body as text (from a clone, so we don't consume the original)
+      // const debugText = await resp.clone().text();
+      // const debugResp = await resp.clone().json();
 
-      console.log(`Response body from '${url}': `, debugResp);
-      console.log("-------------------------");
+      // console.log(`Response body from '${url}': `, debugResp);
+      // console.log("-------------------------");
+      // ////////////////////////////////////////////////////////////
 
       if (resp.ok) {
         // Be careful with the return type here. resp.json() returns Promise<any> which means there is no type checking on response.

@@ -44,3 +44,13 @@ To hard copy over the folder into tweeter-server to avoid the error with symboli
 ```
 tychart@ubudesk(ubu25.04) ~/projects/tweeter/tweeter-server/layer/nodejs/node_modules $ rm -r tweeter-shared && cp -r ../../../../tweeter-shared/ .
 ```
+
+## Using Unit or Integration Tests
+
+### All tests
+
+> Run `npm test` in `./tweeter-web` to test all of the tests in the `./tweeter-web/tests` folder.
+
+### Specific Test Files
+
+> Run `npm test -- test/model/network/serverFacade.test.ts` inside of `./tweeter-web` to run just one test file
