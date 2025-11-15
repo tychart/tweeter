@@ -1,0 +1,83 @@
+title Tweeter Request Flow (Browser → API Gateway → Lambda → Tweeter Server → Shared/FakeData)
+
+' Participants are created the first time they are referenced below:
+' Client Browser, AWS API Gateway, AWS Lambda (Handler), Tweeter Server (Service), Tweeter Shared (FakeData)
+
+autoactivation on
+
+actor Actor
+
+
+participantgroup #lightgreen **Client Browser: tweeter-client Module**
+
+  participantgroup #orange **View Layer**
+    participant PostStatus
+  end
+  
+  participantgroup #orange **Presenter Layer**
+    participant PostStatusPresenter
+  end
+  
+  participantgroup #orange **Model Layer**
+    participant StatusService (Client)
+    participant ServerFacade 
+    participant ClientCommunicator 
+  end
+end
+
+participantgroup #lightblue **AWS**
+  participant AWS API Gateway
+  
+  participantgroup #orange **tweeter-server Module**
+    participant AWS Lambda (Handler)
+    participant StatusService (Server)
+  end
+  
+end
+
+/*
+  Post status calls submitPost in PostStatusPresenter
+  
+  PostStatusPresenter calls postStatus in StatusService
+  
+  StatusService calls postStatus in ServerFacade
+  
+  ServerFacade calls doPost in ClientCommununicator
+  
+*/
+
+Actor->PostStatus: React submitPost()
+
+PostStatus->PostStatusPresenter: submitPost()
+
+PostStatusPresenter->StatusService (Client): postStatus()
+
+StatusService (Client)->ServerFacade: postStatus()
+
+ServerFacade->ClientCommunicator: doPost()
+
+ClientCommunicator->AWS API Gateway: HTTPS REST request\nPOST /user/post\nRequestType: PostStatusRequest
+
+
+AWS API Gateway->AWS Lambda (Handler): tweeterPostStatus()
+
+AWS Lambda (Handler)->StatusService (Server): postStatus()
+
+note over StatusService (Server): await new Promise((f) => setTimeout(f, 2000));\nreturn true;
+
+StatusService (Server)-->AWS Lambda (Handler): true 
+
+AWS Lambda (Handler)-->AWS API Gateway: Type: TweeterResponse
+
+AWS API Gateway-->ClientCommunicator: HTTPS REST response\nPOST /user/post\nResponseType: TweeterResponse
+
+ClientCommunicator-->ServerFacade: TweeterResponse
+
+ServerFacade-->StatusService (Client): true
+
+StatusService (Client)-->PostStatusPresenter: true
+
+note over PostStatusPresenter: view.displayInfoMessage("Status posted!", 2000);
+
+PostStatusPresenter-->PostStatus: void
+
