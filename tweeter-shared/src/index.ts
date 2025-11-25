@@ -12,6 +12,9 @@ export { AuthToken } from "./model/domain/AuthToken";
 export type { UserDto } from "./model/dto/UserDto";
 export type { StatusDto } from "./model/dto/StatusDto";
 
+// DAOs //
+export type { FollowDao } from "./model/dao/FollowDao";
+
 // Requests //
 export type { TweeterRequest } from "./model/net/request/TweeterRequest";
 export type { AuthenticatedRequest } from "./model/net/request/AuthenticatedRequest";
