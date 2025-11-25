@@ -1,4 +1,11 @@
 // tweeter-server/src/dao/dynamo/FollowDaoDynamo.ts
+//
+//
+// USE THIS: https://github.com/tychart/byu-cs-340-projects/blob/main/aws-dynamodb-exercise/src/dao/FollowsDAO.ts
+// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+//
+//
+
 import { FollowDao } from "tweeter-shared";
 import {
   DynamoDBDocumentClient,
