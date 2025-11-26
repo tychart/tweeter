@@ -21,7 +21,7 @@ export interface FollowDao {
   // /** Is *userAlias* following *followeeAlias*? */
   // isFollowing(userAlias: string, followeeAlias: string): Promise<boolean>;
 
-  putFollow(follow: Follow): Promise<boolean>;
+  putFollow(follow: FollowDto): Promise<boolean>;
 
   getFollow(
     followerHandle: string,

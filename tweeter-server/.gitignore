@@ -2,7 +2,7 @@
 /dist
 /nodejs
 
-/layer
+/layer/nodejs
 
 /.aws-sam
 

@@ -21,14 +21,14 @@ export class FollowDaoDynamo implements FollowDao {
   readonly followeeHandleAttr = "followee_handle";
   readonly followeeNameAttr = "followee_name";
 
-  public async putFollow(follow: Follow): Promise<boolean> {
+  public async putFollow(follow: FollowDto): Promise<boolean> {
     const params = {
       TableName: this.tableName,
       Item: {
-        [this.followerHandleAttr]: follow.follower.alias,
-        [this.followerNameAttr]: follow.follower.name,
-        [this.followeeHandleAttr]: follow.followee.alias,
-        [this.followeeNameAttr]: follow.followee.name,
+        [this.followerHandleAttr]: follow.followerHandle,
+        [this.followerNameAttr]: follow.followerName,
+        [this.followeeHandleAttr]: follow.followeeHandle,
+        [this.followeeNameAttr]: follow.followeeName,
       },
     };
     await this.client.send(new PutCommand(params));

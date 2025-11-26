@@ -42,7 +42,8 @@ tychart@ubudesk(ubu25.04) ~/projects/tweeter/tweeter-server $ sam build && sam d
 To hard copy over the folder into tweeter-server to avoid the error with symbolic links:
 
 ```
-tychart@ubudesk(ubu25.04) ~/projects/tweeter/tweeter-server/layer/nodejs/node_modules $ rm -r tweeter-shared && cp -r ../../../../tweeter-shared/ .
+rm -r /home/tychart/projects/tweeter/tweeter-server/layer/nodejs/node_modules/tw
+eeter-shared && cp -r /home/tychart/projects/tweeter/tweeter-shared/ .
 ```
 
 ## Using Unit or Integration Tests

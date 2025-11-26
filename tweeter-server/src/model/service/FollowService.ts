@@ -1,5 +1,6 @@
-import { AuthToken, User, FakeData, UserDto } from "tweeter-shared";
+import { AuthToken, User, FakeData, UserDto, FollowDto } from "tweeter-shared";
 import { Service } from "./Service";
+import { FollowDaoDynamo } from "../dao/FollowDaoDynamo";
 
 export class FollowService implements Service {
   public async loadMoreFollowees(
@@ -69,8 +70,26 @@ export class FollowService implements Service {
     user: UserDto,
     selectedUser: UserDto
   ): Promise<boolean> {
+    console.log("User: ", user);
+    console.log("Selected User: ", user);
+
     // TODO: Replace with the result of calling server
-    return FakeData.instance.isFollower();
+    // return FakeData.instance.isFollower();
+
+    const followDao = new FollowDaoDynamo();
+
+    const followItem: FollowDto | undefined = await followDao.getFollow(
+      user.alias,
+      selectedUser.alias
+    );
+
+    console.log("FollowItem retrieved from database: ", followItem);
+
+    if (followItem === undefined) {
+      return false;
+    } else {
+      return true;
+    }
   }
 
   public async follow(token: string, userToFollow: UserDto): Promise<boolean> {
