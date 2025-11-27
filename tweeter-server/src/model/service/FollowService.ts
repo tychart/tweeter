@@ -1,6 +1,6 @@
 import { AuthToken, User, FakeData, UserDto, FollowDto } from "tweeter-shared";
 import { Service } from "./Service";
-import { FollowDaoDynamo } from "../dao/FollowDaoDynamo";
+import { FollowDaoDynamo } from "../dao/dynamodb/FollowDaoDynamo";
 
 export class FollowService implements Service {
   public async loadMoreFollowees(
@@ -11,6 +11,12 @@ export class FollowService implements Service {
   ): Promise<[UserDto[], boolean]> {
     // TODO: Replace with the result of calling server
     return this.getFakeData(lastItem, pageSize, userAlias);
+
+    // const followDao = new FollowDaoDynamo();
+
+    // const page = followDao.getPageOfFollowees(10, userAlias, lastItem);
+    // Need to query the users in order to properly return a list of UserDTOs
+    // return
   }
 
   public async loadMoreFollowers(

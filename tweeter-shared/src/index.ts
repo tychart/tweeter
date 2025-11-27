@@ -14,9 +14,6 @@ export type { StatusDto } from "./model/dto/StatusDto";
 export type { FollowDto } from "./model/dto/FollowDto";
 export type { DataPageDto } from "./model/dto/DataPageDto";
 
-// DAOs //
-export type { FollowDao } from "./model/dao/FollowDao";
-
 // Requests //
 export type { TweeterRequest } from "./model/net/request/TweeterRequest";
 export type { AuthenticatedRequest } from "./model/net/request/AuthenticatedRequest";

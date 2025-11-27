@@ -8,7 +8,8 @@ import {
 } from "@aws-sdk/lib-dynamodb";
 import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
 
-import { DataPageDto, FollowDto, FollowDao, Follow } from "tweeter-shared";
+import { DataPageDto, FollowDto, Follow } from "tweeter-shared";
+import { FollowDao } from "../FollowDao";
 
 export class FollowDaoDynamo implements FollowDao {
   private readonly client = DynamoDBDocumentClient.from(new DynamoDBClient());
