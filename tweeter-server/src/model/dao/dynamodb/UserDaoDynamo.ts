@@ -8,28 +8,29 @@ import {
 } from "@aws-sdk/lib-dynamodb";
 import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
 
-import { DataPageDto, FollowDto, Follow } from "tweeter-shared";
-import { FollowDao } from "../FollowDao";
+import { UserDto } from "tweeter-shared";
+import { UserDao } from "../UserDao";
 
-export class FollowDaoDynamo implements FollowDao {
+export class UserDaoDynamo implements UserDao {
   private readonly client = DynamoDBDocumentClient.from(new DynamoDBClient());
 
-  readonly tableName = "follows";
-  readonly indexName = "follows_index";
+  readonly tableName = "user";
 
-  readonly followerHandleAttr = "follower_handle";
-  readonly followerNameAttr = "follower_name";
-  readonly followeeHandleAttr = "followee_handle";
-  readonly followeeNameAttr = "followee_name";
+  readonly aliasAttr = "alias";
+  readonly firstNameAttr = "first_name";
+  readonly lastNameAttr = "last_name";
+  readonly passHashAttr = "password_hash";
+  readonly imgUrlAttr = "img_url";
 
-  public async putFollow(follow: FollowDto): Promise<boolean> {
+  public async putUser(user: UserDto, passwordHash: string): Promise<boolean> {
     const params = {
       TableName: this.tableName,
       Item: {
-        [this.followerHandleAttr]: follow.followerHandle,
-        [this.followerNameAttr]: follow.followerName,
-        [this.followeeHandleAttr]: follow.followeeHandle,
-        [this.followeeNameAttr]: follow.followeeName,
+        [this.aliasAttr]: user.alias,
+        [this.firstNameAttr]: user.firstName,
+        [this.lastNameAttr]: user.lastName,
+        [this.imgUrlAttr]: user.imageUrl,
+        [this.passHashAttr]: passwordHash,
       },
     };
     await this.client.send(new PutCommand(params));
@@ -37,139 +38,135 @@ export class FollowDaoDynamo implements FollowDao {
     return true;
   }
 
-  public async getFollow(
-    followerHandle: string,
-    followeeHandle: string
-  ): Promise<FollowDto | undefined> {
+  public async getUser(alias: string): Promise<UserDto | undefined> {
     const params = {
       TableName: this.tableName,
       Key: {
-        [this.followerHandleAttr]: followerHandle,
-        [this.followeeHandleAttr]: followeeHandle,
+        [this.aliasAttr]: alias,
       },
     };
     const response = await this.client.send(new GetCommand(params));
 
     if (response.Item) {
       return {
-        followerHandle: response.Item[this.followerHandleAttr],
-        followerName: response.Item[this.followerNameAttr],
-        followeeHandle: response.Item[this.followeeHandleAttr],
-        followeeName: response.Item[this.followeeNameAttr],
+        alias: response.Item[this.aliasAttr],
+        firstName: response.Item[this.firstNameAttr],
+        lastName: response.Item[this.lastNameAttr],
+        imageUrl: response.Item[this.imgUrlAttr],
       };
     }
 
     return undefined;
   }
 
-  public async updateFollow(
-    followerHandle: string,
-    follower_name: string,
-    followeeHandle: string,
-    followee_name: string
-  ): Promise<void> {
-    const params = {
-      TableName: this.tableName,
-      Key: {
-        [this.followerHandleAttr]: followerHandle,
-        [this.followeeHandleAttr]: followeeHandle,
-      },
-      ExpressionAttributeValues: {
-        ":follower_name": follower_name,
-        ":followee_name": followee_name,
-      },
-      UpdateExpression:
-        "SET " +
-        this.followerNameAttr +
-        " = :follower_name, " +
-        this.followeeNameAttr +
-        " = :followee_name",
-    };
-    await this.client.send(new UpdateCommand(params));
-  }
+  // public async updateFollow(
+  //   followerAlias: string,
+  //   follower_name: string,
+  //   followeeAlias: string,
+  //   followee_name: string
+  // ): Promise<void> {
+  //   const params = {
+  //     TableName: this.tableName,
+  //     Key: {
+  //       [this.followerAliasAttr]: followerAlias,
+  //       [this.followeeAliasAttr]: followeeAlias,
+  //     },
+  //     ExpressionAttributeValues: {
+  //       ":follower_name": follower_name,
+  //       ":followee_name": followee_name,
+  //     },
+  //     UpdateExpression:
+  //       "SET " +
+  //       this.followerNameAttr +
+  //       " = :follower_name, " +
+  //       this.followeeNameAttr +
+  //       " = :followee_name",
+  //   };
+  //   await this.client.send(new UpdateCommand(params));
+  // }
 
-  public async deleteFollow(
-    followerHandle: string,
-    followeeHandle: string
-  ): Promise<void> {
-    const params = {
-      TableName: this.tableName,
-      Key: {
-        [this.followerHandleAttr]: followerHandle,
-        [this.followeeHandleAttr]: followeeHandle,
-      },
-    };
-    await this.client.send(new DeleteCommand(params));
-  }
+  // public async deleteFollow(
+  //   followerAlias: string,
+  //   followeeAlias: string
+  // ): Promise<void> {
+  //   const params = {
+  //     TableName: this.tableName,
+  //     Key: {
+  //       [this.followerAliasAttr]: followerAlias,
+  //       [this.followeeAliasAttr]: followeeAlias,
+  //     },
+  //   };
+  //   await this.client.send(new DeleteCommand(params));
+  // }
 
-  async getPageOfFollowees(
-    pageSize: number,
-    followerHandle: string,
-    followeeHandle?: string | undefined
-  ): Promise<DataPageDto<FollowDto>> {
-    const params = {
-      KeyConditionExpression: this.followerHandleAttr + " = :v",
-      ExpressionAttributeValues: {
-        ":v": followerHandle,
-      },
-      TableName: this.tableName,
-      Limit: pageSize,
-      ExclusiveStartKey:
-        followeeHandle === undefined
-          ? undefined
-          : {
-              [this.followerHandleAttr]: followerHandle,
-              [this.followeeHandleAttr]: followeeHandle,
-            },
-    };
+  // async getPageOfFollowees(
+  //   pageSize: number,
+  //   followerAlias: string,
+  //   followeeAlias?: string | undefined
+  // ): Promise<DataPageDto<FollowDto>> {
+  //   const params = {
+  //     KeyConditionExpression: this.followerAliasAttr + " = :v",
+  //     ExpressionAttributeValues: {
+  //       ":v": followerAlias,
+  //     },
+  //     TableName: this.tableName,
+  //     Limit: pageSize,
+  //     ExclusiveStartKey:
+  //       followeeAlias === undefined
+  //         ? undefined
+  //         : {
+  //             [this.followerAliasAttr]: followerAlias,
+  //             [this.followeeAliasAttr]: followeeAlias,
+  //           },
+  //   };
 
-    const items: FollowDto[] = [];
-    const data = await this.client.send(new QueryCommand(params));
-    const hasMorePages = data.LastEvaluatedKey !== undefined;
-    data.Items?.forEach((item) =>
-      items.push({
-        followerHandle: item[this.followerHandleAttr],
-        followerName: item[this.followerNameAttr],
-        followeeHandle: item[this.followeeHandleAttr],
-        followeeName: item[this.followeeNameAttr],
-      })
-    );
-    return { values: items, hasMorePages: hasMorePages };
-  }
+  //   const items: FollowDto[] = [];
+  //   const data = await this.client.send(new QueryCommand(params));
+  //   const hasMorePages = data.LastEvaluatedKey !== undefined;
+  //   data.Items?.forEach((item) =>
+  //     items.push({
+  //       followerAlias: item[this.followerAliasAttr],
+  //       followerName: item[this.followerNameAttr],
+  //       followeeAlias: item[this.followeeAliasAttr],
+  //       followeeName: item[this.followeeNameAttr],
+  //     })
+  //   );
+  //   return { values: items, hasMorePages: hasMorePages };
+  // }
 
-  async getPageOfFollowers(
-    pageSize: number,
-    followeeHandle: string,
-    lastFollowerHandle?: string | undefined
-  ): Promise<DataPageDto<FollowDto>> {
-    const params = {
-      KeyConditionExpression: this.followeeHandleAttr + " = :v",
-      ExpressionAttributeValues: {
-        ":v": followeeHandle,
-      },
-      TableName: this.tableName,
-      IndexName: this.indexName,
-      Limit: pageSize,
-      ExclusiveStartKey:
-        lastFollowerHandle === undefined
-          ? undefined
-          : {
-              [this.followerHandleAttr]: lastFollowerHandle,
-              [this.followeeHandleAttr]: followeeHandle,
-            },
-    };
+  // async getPageOfFollowers(
+  //   pageSize: number,
+  //   followeeAlias: string,
+  //   lastfollowerAlias?: string | undefined
+  // ): Promise<DataPageDto<FollowDto>> {
+  //   const params = {
+  //     KeyConditionExpression: this.followeeAliasAttr + " = :v",
+  //     ExpressionAttributeValues: {
+  //       ":v": followeeAlias,
+  //     },
+  //     TableName: this.tableName,
+  //     IndexName: this.indexName,
+  //     Limit: pageSize,
+  //     ExclusiveStartKey:
+  //       lastfollowerAlias === undefined
+  //         ? undefined
+  //         : {
+  //             [this.followerAliasAttr]: lastfollowerAlias,
+  //             [this.followeeAliasAttr]: followeeAlias,
+  //           },
+  //   };
 
-    const items: FollowDto[] = [];
-    const data = await this.client.send(new QueryCommand(params));
-    const hasMorePages = data.LastEvaluatedKey !== undefined;
-    data.Items?.forEach((item) =>
-      items.push({
-        followerHandle: item[this.followerHandleAttr],
-        followerName: item[this.followerNameAttr],
-        followeeHandle: item[this.followeeHandleAttr],
-        followeeName: item[this.followeeNameAttr],
-      })
-    );
-    return { values: items, hasMorePages: hasMorePages };
-  }
+  //   const items: FollowDto[] = [];
+  //   const data = await this.client.send(new QueryCommand(params));
+  //   const hasMorePages = data.LastEvaluatedKey !== undefined;
+  //   data.Items?.forEach((item) =>
+  //     items.push({
+  //       followerAlias: item[this.followerAliasAttr],
+  //       followerName: item[this.followerNameAttr],
+  //       followeeAlias: item[this.followeeAliasAttr],
+  //       followeeName: item[this.followeeNameAttr],
+  //     })
+  //   );
+  //   return { values: items, hasMorePages: hasMorePages };
+  // }
 }

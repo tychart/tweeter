@@ -1,6 +1,6 @@
 export interface FollowDto {
-  readonly followerHandle: string;
+  readonly followerAlias: string;
   readonly followerName: string;
-  readonly followeeHandle: string;
+  readonly followeeAlias: string;
   readonly followeeName: string;
 }

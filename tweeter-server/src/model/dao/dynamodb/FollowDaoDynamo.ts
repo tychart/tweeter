@@ -14,21 +14,21 @@ import { FollowDao } from "../FollowDao";
 export class FollowDaoDynamo implements FollowDao {
   private readonly client = DynamoDBDocumentClient.from(new DynamoDBClient());
 
-  readonly tableName = "follows";
-  readonly indexName = "follows_index";
+  readonly tableName = "follow";
+  readonly indexName = "follow_index";
 
-  readonly followerHandleAttr = "follower_handle";
+  readonly followerAliasAttr = "follower_alias";
   readonly followerNameAttr = "follower_name";
-  readonly followeeHandleAttr = "followee_handle";
+  readonly followeeAliasAttr = "followee_alias";
   readonly followeeNameAttr = "followee_name";
 
   public async putFollow(follow: FollowDto): Promise<boolean> {
     const params = {
       TableName: this.tableName,
       Item: {
-        [this.followerHandleAttr]: follow.followerHandle,
+        [this.followerAliasAttr]: follow.followerAlias,
         [this.followerNameAttr]: follow.followerName,
-        [this.followeeHandleAttr]: follow.followeeHandle,
+        [this.followeeAliasAttr]: follow.followeeAlias,
         [this.followeeNameAttr]: follow.followeeName,
       },
     };
@@ -38,23 +38,23 @@ export class FollowDaoDynamo implements FollowDao {
   }
 
   public async getFollow(
-    followerHandle: string,
-    followeeHandle: string
+    followerAlias: string,
+    followeeAlias: string
   ): Promise<FollowDto | undefined> {
     const params = {
       TableName: this.tableName,
       Key: {
-        [this.followerHandleAttr]: followerHandle,
-        [this.followeeHandleAttr]: followeeHandle,
+        [this.followerAliasAttr]: followerAlias,
+        [this.followeeAliasAttr]: followeeAlias,
       },
     };
     const response = await this.client.send(new GetCommand(params));
 
     if (response.Item) {
       return {
-        followerHandle: response.Item[this.followerHandleAttr],
+        followerAlias: response.Item[this.followerAliasAttr],
         followerName: response.Item[this.followerNameAttr],
-        followeeHandle: response.Item[this.followeeHandleAttr],
+        followeeAlias: response.Item[this.followeeAliasAttr],
         followeeName: response.Item[this.followeeNameAttr],
       };
     }
@@ -63,16 +63,16 @@ export class FollowDaoDynamo implements FollowDao {
   }
 
   public async updateFollow(
-    followerHandle: string,
+    followerAlias: string,
     follower_name: string,
-    followeeHandle: string,
+    followeeAlias: string,
     followee_name: string
   ): Promise<void> {
     const params = {
       TableName: this.tableName,
       Key: {
-        [this.followerHandleAttr]: followerHandle,
-        [this.followeeHandleAttr]: followeeHandle,
+        [this.followerAliasAttr]: followerAlias,
+        [this.followeeAliasAttr]: followeeAlias,
       },
       ExpressionAttributeValues: {
         ":follower_name": follower_name,
@@ -89,14 +89,14 @@ export class FollowDaoDynamo implements FollowDao {
   }
 
   public async deleteFollow(
-    followerHandle: string,
-    followeeHandle: string
+    followerAlias: string,
+    followeeAlias: string
   ): Promise<void> {
     const params = {
       TableName: this.tableName,
       Key: {
-        [this.followerHandleAttr]: followerHandle,
-        [this.followeeHandleAttr]: followeeHandle,
+        [this.followerAliasAttr]: followerAlias,
+        [this.followeeAliasAttr]: followeeAlias,
       },
     };
     await this.client.send(new DeleteCommand(params));
@@ -104,22 +104,22 @@ export class FollowDaoDynamo implements FollowDao {
 
   async getPageOfFollowees(
     pageSize: number,
-    followerHandle: string,
-    followeeHandle?: string | undefined
+    followerAlias: string,
+    followeeAlias?: string | undefined
   ): Promise<DataPageDto<FollowDto>> {
     const params = {
-      KeyConditionExpression: this.followerHandleAttr + " = :v",
+      KeyConditionExpression: this.followerAliasAttr + " = :v",
       ExpressionAttributeValues: {
-        ":v": followerHandle,
+        ":v": followerAlias,
       },
       TableName: this.tableName,
       Limit: pageSize,
       ExclusiveStartKey:
-        followeeHandle === undefined
+        followeeAlias === undefined
           ? undefined
           : {
-              [this.followerHandleAttr]: followerHandle,
-              [this.followeeHandleAttr]: followeeHandle,
+              [this.followerAliasAttr]: followerAlias,
+              [this.followeeAliasAttr]: followeeAlias,
             },
     };
 
@@ -128,9 +128,9 @@ export class FollowDaoDynamo implements FollowDao {
     const hasMorePages = data.LastEvaluatedKey !== undefined;
     data.Items?.forEach((item) =>
       items.push({
-        followerHandle: item[this.followerHandleAttr],
+        followerAlias: item[this.followerAliasAttr],
         followerName: item[this.followerNameAttr],
-        followeeHandle: item[this.followeeHandleAttr],
+        followeeAlias: item[this.followeeAliasAttr],
         followeeName: item[this.followeeNameAttr],
       })
     );
@@ -139,23 +139,23 @@ export class FollowDaoDynamo implements FollowDao {
 
   async getPageOfFollowers(
     pageSize: number,
-    followeeHandle: string,
-    lastFollowerHandle?: string | undefined
+    followeeAlias: string,
+    lastfollowerAlias?: string | undefined
   ): Promise<DataPageDto<FollowDto>> {
     const params = {
-      KeyConditionExpression: this.followeeHandleAttr + " = :v",
+      KeyConditionExpression: this.followeeAliasAttr + " = :v",
       ExpressionAttributeValues: {
-        ":v": followeeHandle,
+        ":v": followeeAlias,
       },
       TableName: this.tableName,
       IndexName: this.indexName,
       Limit: pageSize,
       ExclusiveStartKey:
-        lastFollowerHandle === undefined
+        lastfollowerAlias === undefined
           ? undefined
           : {
-              [this.followerHandleAttr]: lastFollowerHandle,
-              [this.followeeHandleAttr]: followeeHandle,
+              [this.followerAliasAttr]: lastfollowerAlias,
+              [this.followeeAliasAttr]: followeeAlias,
             },
     };
 
@@ -164,9 +164,9 @@ export class FollowDaoDynamo implements FollowDao {
     const hasMorePages = data.LastEvaluatedKey !== undefined;
     data.Items?.forEach((item) =>
       items.push({
-        followerHandle: item[this.followerHandleAttr],
+        followerAlias: item[this.followerAliasAttr],
         followerName: item[this.followerNameAttr],
-        followeeHandle: item[this.followeeHandleAttr],
+        followeeAlias: item[this.followeeAliasAttr],
         followeeName: item[this.followeeNameAttr],
       })
     );
