@@ -18,18 +18,14 @@ export class FollowDaoDynamo implements FollowDao {
   readonly indexName = "follow_index";
 
   readonly followerAliasAttr = "follower_alias";
-  readonly followerNameAttr = "follower_name";
   readonly followeeAliasAttr = "followee_alias";
-  readonly followeeNameAttr = "followee_name";
 
   public async putFollow(follow: FollowDto): Promise<boolean> {
     const params = {
       TableName: this.tableName,
       Item: {
         [this.followerAliasAttr]: follow.followerAlias,
-        [this.followerNameAttr]: follow.followerName,
         [this.followeeAliasAttr]: follow.followeeAlias,
-        [this.followeeNameAttr]: follow.followeeName,
       },
     };
     await this.client.send(new PutCommand(params));
@@ -53,9 +49,7 @@ export class FollowDaoDynamo implements FollowDao {
     if (response.Item) {
       return {
         followerAlias: response.Item[this.followerAliasAttr],
-        followerName: response.Item[this.followerNameAttr],
         followeeAlias: response.Item[this.followeeAliasAttr],
-        followeeName: response.Item[this.followeeNameAttr],
       };
     }
 
@@ -64,9 +58,7 @@ export class FollowDaoDynamo implements FollowDao {
 
   public async updateFollow(
     followerAlias: string,
-    follower_name: string,
-    followeeAlias: string,
-    followee_name: string
+    followeeAlias: string
   ): Promise<void> {
     const params = {
       TableName: this.tableName,
@@ -74,16 +66,6 @@ export class FollowDaoDynamo implements FollowDao {
         [this.followerAliasAttr]: followerAlias,
         [this.followeeAliasAttr]: followeeAlias,
       },
-      ExpressionAttributeValues: {
-        ":follower_name": follower_name,
-        ":followee_name": followee_name,
-      },
-      UpdateExpression:
-        "SET " +
-        this.followerNameAttr +
-        " = :follower_name, " +
-        this.followeeNameAttr +
-        " = :followee_name",
     };
     await this.client.send(new UpdateCommand(params));
   }
@@ -129,9 +111,7 @@ export class FollowDaoDynamo implements FollowDao {
     data.Items?.forEach((item) =>
       items.push({
         followerAlias: item[this.followerAliasAttr],
-        followerName: item[this.followerNameAttr],
         followeeAlias: item[this.followeeAliasAttr],
-        followeeName: item[this.followeeNameAttr],
       })
     );
     return { values: items, hasMorePages: hasMorePages };
@@ -165,9 +145,7 @@ export class FollowDaoDynamo implements FollowDao {
     data.Items?.forEach((item) =>
       items.push({
         followerAlias: item[this.followerAliasAttr],
-        followerName: item[this.followerNameAttr],
         followeeAlias: item[this.followeeAliasAttr],
-        followeeName: item[this.followeeNameAttr],
       })
     );
     return { values: items, hasMorePages: hasMorePages };
