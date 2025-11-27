@@ -2,18 +2,22 @@ import { Buffer } from "buffer";
 
 import { AuthToken, User, FakeData, UserDto } from "tweeter-shared";
 import { Service } from "./Service";
+import { UserDaoDynamo } from "../dao/dynamodb/UserDaoDynamo";
 
 export class UserService implements Service {
   public async getUser(token: string, alias: string): Promise<UserDto | null> {
     // TODO: Replace with the result of calling server
 
-    const retrievedUser = FakeData.instance.findUserByAlias(alias);
+    // const retrievedUser = FakeData.instance.findUserByAlias(alias);
+    const userDao = new UserDaoDynamo();
 
-    if (retrievedUser === null) {
+    const retrievedUser: UserDto | undefined = await userDao.getUser(alias);
+
+    if (retrievedUser === undefined) {
       return null;
     }
 
-    return retrievedUser.dto;
+    return retrievedUser;
   }
 
   public async login(
@@ -39,13 +43,26 @@ export class UserService implements Service {
     imageFileExtension: string
   ): Promise<[UserDto | null, AuthToken | null]> {
     // TODO: Replace with the result of calling the server
-    const user = FakeData.instance.firstUser;
+    // const user = FakeData.instance.firstUser;
 
-    if (user === null) {
+    const userDto = {
+      alias: alias,
+      firstName: firstName,
+      lastName: lastName,
+      imageUrl: "htp://fake-url.cm",
+    };
+
+    const userDao = new UserDaoDynamo();
+    const success: boolean = await userDao.putUser(
+      userDto,
+      "Myfakepasswordhash64"
+    );
+
+    if (userDto === null) {
       return [null, null];
     }
 
-    return [user.dto, FakeData.instance.authToken];
+    return [userDto, FakeData.instance.authToken];
   }
 
   // In this file, he has login, register and logout, to see go to here:
