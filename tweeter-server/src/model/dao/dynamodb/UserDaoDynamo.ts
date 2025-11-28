@@ -45,7 +45,19 @@ export class UserDaoDynamo implements UserDao {
         [this.aliasAttr]: alias,
       },
     };
+
+    // console.log("This is a test to see before stuff");
+
+    // console.log("Params being sent for getting a user: ", params);
+
+    // const getCommand = ;
+
+    // console.log("This is the get command: ", getCommand);
+
     const response = await this.client.send(new GetCommand(params));
+
+    // console.log("Response from dynamo for getting a user: ", response);
+    // console.log("This is a test to see stuff");
 
     if (response.Item) {
       return {

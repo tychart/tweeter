@@ -107,6 +107,9 @@ export class FollowDaoDynamo implements FollowDao {
 
     const items: FollowDto[] = [];
     const data = await this.client.send(new QueryCommand(params));
+
+    console.log("Retrieved data from follows table: ", data);
+
     const hasMorePages = data.LastEvaluatedKey !== undefined;
     data.Items?.forEach((item) =>
       items.push({
@@ -114,6 +117,9 @@ export class FollowDaoDynamo implements FollowDao {
         followeeAlias: item[this.followeeAliasAttr],
       })
     );
+
+    console.log("The value of 'items': ", items);
+
     return { values: items, hasMorePages: hasMorePages };
   }
 

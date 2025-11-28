@@ -1,6 +1,14 @@
-import { AuthToken, User, FakeData, UserDto, FollowDto } from "tweeter-shared";
+import {
+  AuthToken,
+  User,
+  FakeData,
+  UserDto,
+  FollowDto,
+  DataPageDto,
+} from "tweeter-shared";
 import { Service } from "./Service";
 import { FollowDaoDynamo } from "../dao/dynamodb/FollowDaoDynamo";
+import { UserDaoDynamo } from "../dao/dynamodb/UserDaoDynamo";
 
 export class FollowService implements Service {
   public async loadMoreFollowees(
@@ -10,13 +18,31 @@ export class FollowService implements Service {
     lastItem: UserDto | null
   ): Promise<[UserDto[], boolean]> {
     // TODO: Replace with the result of calling server
-    return this.getFakeData(lastItem, pageSize, userAlias);
+    // return this.getFakeData(lastItem, pageSize, userAlias);
 
-    // const followDao = new FollowDaoDynamo();
+    const followDao = new FollowDaoDynamo();
+    const userDao = new UserDaoDynamo();
 
-    // const page = followDao.getPageOfFollowees(10, userAlias, lastItem);
+    const dataPage: DataPageDto<FollowDto> = await followDao.getPageOfFollowees(
+      pageSize,
+      userAlias,
+      lastItem?.alias
+    );
+
+    const users: UserDto[] = [];
+
+    for (const item of dataPage.values) {
+      const userDto = await userDao.getUser(item.followeeAlias);
+
+      if (userDto !== undefined) {
+        users.push(userDto);
+      } else {
+        console.log("Could not find a user with alias of ", item.followerAlias);
+      }
+    }
+
     // Need to query the users in order to properly return a list of UserDTOs
-    // return
+    return [users, dataPage.hasMorePages];
   }
 
   public async loadMoreFollowers(
@@ -26,7 +52,46 @@ export class FollowService implements Service {
     lastItem: UserDto | null
   ): Promise<[UserDto[], boolean]> {
     // TODO: Replace with the result of calling server
-    return this.getFakeData(lastItem, pageSize, userAlias);
+    // return this.getFakeData(lastItem, pageSize, userAlias);
+
+    const followDao = new FollowDaoDynamo();
+    const userDao = new UserDaoDynamo();
+
+    // console.log(
+    //   "loadMoreFollowers Was Called trying to retrieve followers of user: ",
+    //   userAlias
+    // );
+
+    const dataPage: DataPageDto<FollowDto> = await followDao.getPageOfFollowers(
+      pageSize,
+      userAlias,
+      lastItem?.alias
+    );
+
+    // console.log(
+    //   "These were the users found that follow the afformentioned user: ",
+    //   dataPage.values
+    // );
+
+    const users: UserDto[] = [];
+
+    for (const item of dataPage.values) {
+      const userDto = await userDao.getUser(item.followerAlias);
+
+      if (userDto !== undefined) {
+        users.push(userDto);
+      } else {
+        console.log("Could not find a user with alias of ", item.followerAlias);
+      }
+    }
+
+    // console.log(
+    //   "These were the users returned from querying the user table to get all their info: ",
+    //   users
+    // );
+
+    // Need to query the users in order to properly return a list of UserDTOs
+    return [users, dataPage.hasMorePages];
   }
 
   private async getFakeData(
