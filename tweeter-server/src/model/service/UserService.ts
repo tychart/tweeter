@@ -1,8 +1,11 @@
 import { Buffer } from "buffer";
+import bcrypt from "bcryptjs";
 
 import { AuthToken, User, FakeData, UserDto } from "tweeter-shared";
 import { Service } from "./Service";
 import { UserDaoDynamo } from "../dao/dynamodb/UserDaoDynamo";
+import { AuthDao } from "../dao/AuthDao";
+import { AuthDaoDynamo } from "../dao/dynamodb/AuthDaoDynamo";
 
 export class UserService implements Service {
   public async getUser(token: string, alias: string): Promise<UserDto | null> {
@@ -25,13 +28,31 @@ export class UserService implements Service {
     password: string
   ): Promise<[UserDto | null, AuthToken | null]> {
     // TODO: Replace with the result of calling the server
-    const user = FakeData.instance.firstUser;
+    // const user = FakeData.instance.firstUser;
 
-    if (user === null) {
+    const userDao = new UserDaoDynamo();
+
+    const fullUser: [UserDto, string] | undefined = await userDao.getFullUser(
+      alias
+    );
+
+    if (fullUser === undefined) {
       return [null, null];
     }
 
-    return [user.dto, FakeData.instance.authToken];
+    const [userDto, passHash] = fullUser;
+
+    if (await bcrypt.compare(password, passHash)) {
+      const authToken = AuthToken.Generate();
+
+      const authDao = new AuthDaoDynamo();
+
+      authDao.putAuth(authToken, userDto.alias);
+
+      return [userDto, authToken];
+    }
+
+    throw new Error(`Password for ${alias} is incorrect`);
   }
 
   public async register(
@@ -52,17 +73,25 @@ export class UserService implements Service {
       imageUrl: "htp://fake-url.cm",
     };
 
-    const userDao = new UserDaoDynamo();
-    const success: boolean = await userDao.putUser(
-      userDto,
-      "Myfakepasswordhash64"
-    );
-
     if (userDto === null) {
       return [null, null];
     }
 
-    return [userDto, FakeData.instance.authToken];
+    const salt = await bcrypt.genSalt();
+    const hashedPassword = await bcrypt.hash(password, salt);
+
+    const userDao = new UserDaoDynamo();
+    const addUserSuccess: boolean = await userDao.putUser(
+      userDto,
+      hashedPassword
+    );
+
+    const authToken: AuthToken = AuthToken.Generate();
+
+    const authDao: AuthDao = new AuthDaoDynamo();
+    const addAuthSuccess: boolean = await authDao.putAuth(authToken, alias);
+
+    return [userDto, authToken];
   }
 
   // In this file, he has login, register and logout, to see go to here:

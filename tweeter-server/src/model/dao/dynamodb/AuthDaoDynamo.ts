@@ -8,29 +8,26 @@ import {
 } from "@aws-sdk/lib-dynamodb";
 import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
 
-import { UserDto } from "tweeter-shared";
+import { AuthToken, UserDto } from "tweeter-shared";
 import { UserDao } from "../UserDao";
+import { AuthDao } from "../AuthDao";
 
-export class UserDaoDynamo implements UserDao {
+export class AuthDaoDynamo implements AuthDao {
   private readonly client = DynamoDBDocumentClient.from(new DynamoDBClient());
 
-  readonly tableName = "user";
+  readonly tableName = "auth";
 
+  readonly tokenAttr = "token";
   readonly aliasAttr = "alias";
-  readonly firstNameAttr = "first_name";
-  readonly lastNameAttr = "last_name";
-  readonly passHashAttr = "password_hash";
-  readonly imgUrlAttr = "img_url";
+  readonly lastUsedAttr = "last_used";
 
-  public async putUser(user: UserDto, passwordHash: string): Promise<boolean> {
+  public async putAuth(authToken: AuthToken, alias: string): Promise<boolean> {
     const params = {
       TableName: this.tableName,
       Item: {
-        [this.aliasAttr]: user.alias,
-        [this.firstNameAttr]: user.firstName,
-        [this.lastNameAttr]: user.lastName,
-        [this.imgUrlAttr]: user.imageUrl,
-        [this.passHashAttr]: passwordHash,
+        [this.tokenAttr]: authToken.token,
+        [this.aliasAttr]: alias,
+        [this.lastUsedAttr]: authToken.timestamp,
       },
     };
     await this.client.send(new PutCommand(params));
@@ -38,11 +35,13 @@ export class UserDaoDynamo implements UserDao {
     return true;
   }
 
-  public async getUser(alias: string): Promise<UserDto | undefined> {
+  public async getAuth(
+    token: string
+  ): Promise<[AuthToken, string] | undefined> {
     const params = {
       TableName: this.tableName,
       Key: {
-        [this.aliasAttr]: alias,
+        [this.tokenAttr]: token,
       },
     };
 
@@ -60,51 +59,12 @@ export class UserDaoDynamo implements UserDao {
     // console.log("This is a test to see stuff");
 
     if (response.Item) {
-      return {
-        alias: response.Item[this.aliasAttr],
-        firstName: response.Item[this.firstNameAttr],
-        lastName: response.Item[this.lastNameAttr],
-        imageUrl: response.Item[this.imgUrlAttr],
-      };
-    }
+      const returnedAuthToken = new AuthToken(
+        response.Item[this.tokenAttr],
+        response.Item[this.lastUsedAttr]
+      );
 
-    return undefined;
-  }
-
-  public async getFullUser(
-    alias: string
-  ): Promise<[UserDto, string] | undefined> {
-    const params = {
-      TableName: this.tableName,
-      Key: {
-        [this.aliasAttr]: alias,
-      },
-    };
-
-    // console.log("This is a test to see before stuff");
-
-    // console.log("Params being sent for getting a user: ", params);
-
-    // const getCommand = ;
-
-    // console.log("This is the get command: ", getCommand);
-
-    const response = await this.client.send(new GetCommand(params));
-
-    // console.log("Response from dynamo for getting a user: ", response);
-    // console.log("This is a test to see stuff");
-
-    if (response.Item) {
-      const returnedUserDto: UserDto = {
-        alias: response.Item[this.aliasAttr],
-        firstName: response.Item[this.firstNameAttr],
-        lastName: response.Item[this.lastNameAttr],
-        imageUrl: response.Item[this.imgUrlAttr],
-      };
-
-      const passwordHash: string = response.Item[this.passHashAttr];
-
-      return [returnedUserDto, passwordHash];
+      return [returnedAuthToken, response.Item[this.aliasAttr]];
     }
 
     return undefined;
