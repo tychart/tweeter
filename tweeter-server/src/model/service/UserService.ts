@@ -10,9 +10,11 @@ import { AuthDaoDynamo } from "../dao/dynamodb/AuthDaoDynamo";
 export class UserService implements Service {
   public async getUser(token: string, alias: string): Promise<UserDto | null> {
     // TODO: Replace with the result of calling server
-
     // const retrievedUser = FakeData.instance.findUserByAlias(alias);
     const userDao = new UserDaoDynamo();
+    const authDao = new AuthDaoDynamo();
+
+    await authDao.validateAuth(token);
 
     const retrievedUser: UserDto | undefined = await userDao.getUser(alias);
 
@@ -52,7 +54,9 @@ export class UserService implements Service {
       return [userDto, authToken];
     }
 
-    throw new Error(`Password for ${alias} is incorrect`);
+    throw new Error(
+      `Error: unauthorized access - Password for ${alias} is incorrect`
+    );
   }
 
   public async register(

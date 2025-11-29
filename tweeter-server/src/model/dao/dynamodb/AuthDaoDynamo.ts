@@ -70,6 +70,31 @@ export class AuthDaoDynamo implements AuthDao {
     return undefined;
   }
 
+  public async validateAuth(token: string): Promise<[AuthToken, string]> {
+    const LENGTH_OF_TIME_UNTIL_TOKEN_EXPIRES_MS = 10 * 60 * 1000;
+
+    const authReturn = await this.getAuth(token);
+
+    if (!authReturn) {
+      throw new Error(
+        `Error: unauthorized access - Authtoken provided was not found in the database`
+      );
+    }
+
+    const [authToken, alias] = authReturn;
+
+    if (
+      authToken.timestamp + LENGTH_OF_TIME_UNTIL_TOKEN_EXPIRES_MS <
+      Date.now()
+    ) {
+      throw new Error(
+        `Error: unauthorized access - Token for user: ${alias} is expired`
+      );
+    }
+
+    return [authToken, alias];
+  }
+
   // public async updateFollow(
   //   followerAlias: string,
   //   follower_name: string,
