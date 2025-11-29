@@ -21,6 +21,8 @@ export class UserDaoDynamo implements UserDao {
   readonly lastNameAttr = "last_name";
   readonly passHashAttr = "password_hash";
   readonly imgUrlAttr = "img_url";
+  readonly followeecountAttr = "followee_count";
+  readonly followercountAttr = "follower_count";
 
   public async putUser(user: UserDto, passwordHash: string): Promise<boolean> {
     const params = {
@@ -31,6 +33,8 @@ export class UserDaoDynamo implements UserDao {
         [this.lastNameAttr]: user.lastName,
         [this.imgUrlAttr]: user.imageUrl,
         [this.passHashAttr]: passwordHash,
+        [this.followeecountAttr]: 0,
+        [this.followercountAttr]: 0,
       },
     };
     await this.client.send(new PutCommand(params));
