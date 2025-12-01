@@ -62,11 +62,13 @@ export class UserService implements Service {
     imageStringBase64: string,
     imageFileExtension: string
   ): Promise<[UserDto | null, AuthToken | null]> {
+    const imgUrl = await this.userDao.putImage(alias, imageStringBase64);
+
     const userDto = {
       alias: alias,
       firstName: firstName,
       lastName: lastName,
-      imageUrl: "htp://fake-url.cm",
+      imageUrl: imgUrl,
     };
 
     if (userDto === null) {

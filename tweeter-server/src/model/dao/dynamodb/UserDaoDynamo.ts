@@ -1,3 +1,4 @@
+import { Buffer } from "buffer";
 import {
   DeleteCommand,
   DynamoDBDocumentClient,
@@ -7,12 +8,21 @@ import {
   UpdateCommand,
 } from "@aws-sdk/lib-dynamodb";
 import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
+import {
+  S3Client,
+  PutObjectCommand,
+  PutObjectCommandInput,
+  ObjectCannedACL,
+} from "@aws-sdk/client-s3";
 
 import { UserDto } from "tweeter-shared";
 import { UserDao } from "../UserDao";
 
 export class UserDaoDynamo implements UserDao {
   private readonly client = DynamoDBDocumentClient.from(new DynamoDBClient());
+
+  readonly BUCKET = "tychart-s3-test-bucket2";
+  readonly REGION = "us-west-2";
 
   readonly tableName = "user";
 
@@ -40,6 +50,31 @@ export class UserDaoDynamo implements UserDao {
     await this.client.send(new PutCommand(params));
 
     return true;
+  }
+
+  public async putImage(
+    fileName: string,
+    imageStringBase64Encoded: string
+  ): Promise<string> {
+    let decodedImageBuffer: Buffer = Buffer.from(
+      imageStringBase64Encoded,
+      "base64"
+    );
+    const s3Params = {
+      Bucket: this.BUCKET,
+      Key: "image/" + fileName,
+      Body: decodedImageBuffer,
+      ContentType: "image/png",
+      ACL: ObjectCannedACL.public_read,
+    };
+    const c = new PutObjectCommand(s3Params);
+    const client = new S3Client({ region: this.REGION });
+    try {
+      await client.send(c);
+      return `https://${this.BUCKET}.s3.${this.REGION}.amazonaws.com/image/${fileName}`;
+    } catch (error) {
+      throw Error("s3 put image failed with: " + error);
+    }
   }
 
   public async getUser(alias: string): Promise<UserDto | undefined> {

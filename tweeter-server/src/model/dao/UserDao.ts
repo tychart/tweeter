@@ -11,6 +11,8 @@ export interface UserDaoFactory {
 export interface UserDao {
   putUser(follow: UserDto, password_hash: string): Promise<boolean>;
 
+  putImage(fileName: string, imageStringBase64Encoded: string): Promise<string>;
+
   getUser(alias: string): Promise<UserDto | undefined>;
 
   getFullUser(alias: string): Promise<

@@ -127,6 +127,11 @@ export class FeedDaoDynamo implements FeedDao {
     alias: string,
     lastTimestamp?: number | undefined
   ): Promise<DataPageDto<SmallStatusDto>> {
+    console.log("--------------------");
+    console.log("Inside of getPageOfFeed");
+    console.log("alias: ", alias);
+    console.log("lastTimestamp: ", lastTimestamp);
+
     const params = {
       KeyConditionExpression: this.aliasAttr + " = :v",
       ExpressionAttributeValues: {
@@ -142,6 +147,8 @@ export class FeedDaoDynamo implements FeedDao {
               [this.timestampAttr]: lastTimestamp,
             },
     };
+
+    console.log("params: ", params);
 
     const items: SmallStatusDto[] = [];
     const data = await this.client.send(new QueryCommand(params));

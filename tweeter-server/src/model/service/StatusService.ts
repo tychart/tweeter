@@ -38,6 +38,8 @@ export class StatusService implements Service {
     // TODO: Replace with the result of calling server
     // return this.getFakeData(lastItem, pageSize);
 
+    console.log("Inside of loadMoreFeedItems, lastItem: ", lastItem);
+
     await this.authDao.validateAuth(token);
 
     const dataPage: DataPageDto<SmallStatusDto> =
