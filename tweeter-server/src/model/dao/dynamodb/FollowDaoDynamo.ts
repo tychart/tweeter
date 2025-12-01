@@ -28,6 +28,9 @@ export class FollowDaoDynamo implements FollowDao {
         [this.followeeAliasAttr]: follow.followeeAlias,
       },
     };
+
+    console.log("putFollow Params", params);
+
     await this.client.send(new PutCommand(params));
 
     return true;
@@ -70,18 +73,17 @@ export class FollowDaoDynamo implements FollowDao {
     await this.client.send(new UpdateCommand(params));
   }
 
-  public async deleteFollow(
-    followerAlias: string,
-    followeeAlias: string
-  ): Promise<void> {
+  public async deleteFollow(followDto: FollowDto): Promise<boolean> {
     const params = {
       TableName: this.tableName,
       Key: {
-        [this.followerAliasAttr]: followerAlias,
-        [this.followeeAliasAttr]: followeeAlias,
+        [this.followerAliasAttr]: followDto.followerAlias,
+        [this.followeeAliasAttr]: followDto.followeeAlias,
       },
     };
     await this.client.send(new DeleteCommand(params));
+
+    return true;
   }
 
   async getPageOfFollowees(

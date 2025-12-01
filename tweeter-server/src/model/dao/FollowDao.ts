@@ -26,7 +26,7 @@ export interface FollowDao {
     followeeHandle: string
   ): Promise<FollowDto | undefined>;
 
-  deleteFollow(followerHandle: string, followeeHandle: string): Promise<void>;
+  deleteFollow(follow: FollowDto): Promise<boolean>;
 
   /** Return all followees of a user (paged). */
   getPageOfFollowees(

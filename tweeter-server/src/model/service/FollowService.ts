@@ -10,6 +10,7 @@ import { Service } from "./Service";
 import { FollowDaoDynamo } from "../dao/dynamodb/FollowDaoDynamo";
 import { UserDaoDynamo } from "../dao/dynamodb/UserDaoDynamo";
 import { AuthDaoDynamo } from "../dao/dynamodb/AuthDaoDynamo";
+import { Follow } from "tweeter-shared";
 
 export class FollowService implements Service {
   public async loadMoreFollowees(
@@ -148,8 +149,22 @@ export class FollowService implements Service {
 
   public async getFollowerCount(token: string, user: UserDto): Promise<number> {
     // TODO: Replace with the result of calling server
+    // return FakeData.instance.getFollowerCount(user.alias);
 
-    return FakeData.instance.getFollowerCount(user.alias);
+    const authDao = new AuthDaoDynamo();
+    const userDao = new UserDaoDynamo();
+
+    await authDao.validateAuth(token);
+
+    const fullUser = await userDao.getFullUser(user.alias);
+
+    if (fullUser === undefined) {
+      throw new Error(
+        `Error: bad-request - The followee count requested for user ${user.alias} was not found in the database, something might be wrong with the record`
+      );
+    }
+
+    return fullUser.followerCount;
   }
 
   public async getIsFollowerStatus(
@@ -163,7 +178,10 @@ export class FollowService implements Service {
     // TODO: Replace with the result of calling server
     // return FakeData.instance.isFollower();
 
+    const authDao = new AuthDaoDynamo();
     const followDao = new FollowDaoDynamo();
+
+    await authDao.validateAuth(token);
 
     const followItem: FollowDto | undefined = await followDao.getFollow(
       user.alias,
@@ -181,9 +199,26 @@ export class FollowService implements Service {
 
   public async follow(token: string, userToFollow: UserDto): Promise<boolean> {
     // Pause so we can see the follow message. Remove when connected to the server
-    await new Promise((f) => setTimeout(f, 2000));
+    // await new Promise((f) => setTimeout(f, 2000));
 
     // TODO: Call the server
+
+    console.log("Input Token: ", token);
+    console.log("Input User To Follow: ", userToFollow);
+
+    const authDao = new AuthDaoDynamo();
+    const followDao = new FollowDaoDynamo();
+
+    const auth = await authDao.validateAuth(token);
+    const [authToken, alias] = auth;
+
+    console.log("Retrieved Token From Authtable: ", authToken);
+    console.log("Retrieved alias From Authtable: ", alias);
+
+    await followDao.putFollow({
+      followeeAlias: userToFollow.alias,
+      followerAlias: alias,
+    });
 
     return true;
   }
@@ -193,9 +228,22 @@ export class FollowService implements Service {
     userToUnfollow: UserDto
   ): Promise<boolean> {
     // Pause so we can see the unfollow message. Remove when connected to the server
-    await new Promise((f) => setTimeout(f, 2000));
-
+    // await new Promise((f) => setTimeout(f, 2000));
     // TODO: Call the server
+
+    const authDao = new AuthDaoDynamo();
+    const followDao = new FollowDaoDynamo();
+
+    const auth = await authDao.validateAuth(token);
+    const [authToken, alias] = auth;
+
+    console.log("Retrieved Token From Authtable: ", authToken);
+    console.log("Retrieved Alias From Authtable: ", alias);
+
+    await followDao.deleteFollow({
+      followeeAlias: userToUnfollow.alias,
+      followerAlias: alias,
+    });
 
     return true;
   }
