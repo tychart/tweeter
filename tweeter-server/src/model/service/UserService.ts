@@ -62,6 +62,14 @@ export class UserService implements Service {
     imageStringBase64: string,
     imageFileExtension: string
   ): Promise<[UserDto | null, AuthToken | null]> {
+    const user = await this.userDao.getUser(alias);
+
+    if (user != undefined) {
+      throw new Error(
+        `Error: user ${alias} already exists, please choose a different alias`
+      );
+    }
+
     const imgUrl = await this.userDao.putImage(alias, imageStringBase64);
 
     const userDto = {
