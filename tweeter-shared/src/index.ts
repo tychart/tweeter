@@ -13,6 +13,7 @@ export type { UserDto } from "./model/dto/UserDto";
 export type { StatusDto } from "./model/dto/StatusDto";
 export type { FollowDto } from "./model/dto/FollowDto";
 export type { DataPageDto } from "./model/dto/DataPageDto";
+export type { SmallStatusDto } from "./model/dto/SmallStatusDto";
 
 // Requests //
 export type { TweeterRequest } from "./model/net/request/TweeterRequest";

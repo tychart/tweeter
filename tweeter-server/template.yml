@@ -720,12 +720,12 @@ Resources:
       TableName: feed ##### TODO: Set the actual table name
       AttributeDefinitions:
         ##### TODO: Add attributes that will be partition or sort keys, including their datatypes (for both table and index)
-        - AttributeName: owner_alias
+        - AttributeName: alias
           AttributeType: S
         - AttributeName: timestamp
           AttributeType: N
       KeySchema:
-        - AttributeName: owner_alias ##### TODO: Set table partition key
+        - AttributeName: alias ##### TODO: Set table partition key
           KeyType: HASH
         - AttributeName: timestamp ##### TODO: Set table sort key
           KeyType: RANGE

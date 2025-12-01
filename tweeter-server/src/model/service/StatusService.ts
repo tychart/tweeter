@@ -1,18 +1,31 @@
-import { AuthToken, Status, FakeData, StatusDto } from "tweeter-shared";
+import {
+  AuthToken,
+  Status,
+  FakeData,
+  StatusDto,
+  FollowDto,
+} from "tweeter-shared";
 import { Service } from "./Service";
 import { StatusDao, StatusDaoFactory } from "../dao/StatusDao";
 import { AuthDao } from "../dao/AuthDao";
 import { UserDao } from "../dao/UserDao";
+import { FollowDao } from "../dao/FollowDao";
+import { FeedDao, FeedDaoFactory } from "../dao/FeedDao";
+import { DataPageDto } from "tweeter-shared";
 
 export class StatusService implements Service {
   private authDao: AuthDao;
   private userDao: UserDao;
+  private followDao: FollowDao;
   private statusDao: StatusDao;
+  private feedDao: FeedDao;
 
-  constructor(statusDaoFactory: StatusDaoFactory) {
-    this.authDao = statusDaoFactory.authDao;
-    this.userDao = statusDaoFactory.userDao;
-    this.statusDao = statusDaoFactory.statusDao;
+  constructor(feedDaoFactory: FeedDaoFactory) {
+    this.authDao = feedDaoFactory.authDao;
+    this.userDao = feedDaoFactory.userDao;
+    this.followDao = feedDaoFactory.followDao;
+    this.statusDao = feedDaoFactory.statusDao;
+    this.feedDao = feedDaoFactory.feedDao;
   }
 
   public async loadMoreFeedItems(
@@ -75,8 +88,35 @@ export class StatusService implements Service {
       newStatus.post
     );
 
-    return true;
+    /// Update Everyone Else's Feed ///
 
-    // TODO: Call the server to post the status
+    const followers: FollowDto[] = [];
+    let hasMorePages = true;
+    let lastFollowerHandle = undefined;
+
+    while (hasMorePages) {
+      const dataPage: DataPageDto<FollowDto> =
+        await this.followDao.getPageOfFollowers(
+          25,
+          newStatus.user.alias,
+          lastFollowerHandle
+        );
+
+      hasMorePages = dataPage.hasMorePages;
+
+      for (let followerDto of dataPage.values) {
+        await this.feedDao.putPost(
+          followerDto.followerAlias,
+          newStatus.timestamp,
+          newStatus.user.alias,
+          newStatus.post
+        );
+      }
+
+      lastFollowerHandle =
+        dataPage.values[dataPage.values.length - 1]?.followerAlias;
+    }
+
+    return true;
   }
 }

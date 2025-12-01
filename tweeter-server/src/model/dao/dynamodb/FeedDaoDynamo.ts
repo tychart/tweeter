@@ -9,20 +9,23 @@ import {
 import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
 
 import { StatusDao } from "../StatusDao";
-import { DataPageDto, StatusDto } from "tweeter-shared";
+import { DataPageDto, SmallStatusDto, StatusDto } from "tweeter-shared";
+import { FeedDao } from "../FeedDao";
 
-export class StatusDaoDynamo implements StatusDao {
+export class FeedDaoDynamo implements FeedDao {
   private readonly client = DynamoDBDocumentClient.from(new DynamoDBClient());
 
-  readonly tableName = "status";
+  readonly tableName = "feed";
 
   readonly aliasAttr = "alias";
   readonly timestampAttr = "timestamp";
+  readonly authorAliasAttr = "author_alias";
   readonly postAttr = "post";
 
   public async putPost(
     alias: string,
     timestamp: number,
+    authorAlias: string,
     post: string
   ): Promise<boolean> {
     const params = {
@@ -30,6 +33,7 @@ export class StatusDaoDynamo implements StatusDao {
       Item: {
         [this.aliasAttr]: alias,
         [this.timestampAttr]: timestamp,
+        [this.authorAliasAttr]: authorAlias,
         [this.postAttr]: post,
       },
     };
@@ -41,7 +45,7 @@ export class StatusDaoDynamo implements StatusDao {
   public async getPost(
     token: string,
     timestamp: number
-  ): Promise<{ alias: string; timestamp: number; post: string } | undefined> {
+  ): Promise<[SmallStatusDto, string] | undefined> {
     const params = {
       TableName: this.tableName,
       Key: {
@@ -56,11 +60,14 @@ export class StatusDaoDynamo implements StatusDao {
       return undefined;
     }
 
-    return {
-      alias: response.Item[this.aliasAttr],
-      timestamp: response.Item[this.timestampAttr],
-      post: response.Item[this.postAttr],
-    };
+    return [
+      {
+        alias: response.Item[this.aliasAttr],
+        timestamp: response.Item[this.timestampAttr],
+        post: response.Item[this.postAttr],
+      },
+      response.Item[this.authorAliasAttr],
+    ];
   }
 
   // public async validateAuth(token: string): Promise<[AuthToken, string]> {
@@ -115,40 +122,39 @@ export class StatusDaoDynamo implements StatusDao {
   //   await this.client.send(new DeleteCommand(params));
   // }
 
-  // async getPageOfFeed(
-  //   pageSize: number,
-  //   alias: string,
-  //   timestamp: number
-  // ): Promise<DataPageDto<StatusDto>> {
-  //   const params = {
-  //     KeyConditionExpression: this.followerAliasAttr + " = :v",
-  //     ExpressionAttributeValues: {
-  //       ":v": followerAlias,
-  //     },
-  //     TableName: this.tableName,
-  //     Limit: pageSize,
-  //     ExclusiveStartKey:
-  //       followeeAlias === undefined
-  //         ? undefined
-  //         : {
-  //             [this.followerAliasAttr]: followerAlias,
-  //             [this.followeeAliasAttr]: followeeAlias,
-  //           },
-  //   };
+  async getPageOfFeed(
+    pageSize: number,
+    alias: string,
+    lastTimestamp?: number | undefined
+  ): Promise<DataPageDto<SmallStatusDto>> {
+    const params = {
+      KeyConditionExpression: this.aliasAttr + " = :v",
+      ExpressionAttributeValues: {
+        ":v": alias,
+      },
+      TableName: this.tableName,
+      Limit: pageSize,
+      ExclusiveStartKey:
+        lastTimestamp === undefined
+          ? undefined
+          : {
+              [this.aliasAttr]: alias,
+              [this.timestampAttr]: lastTimestamp,
+            },
+    };
 
-  //   const items: FollowDto[] = [];
-  //   const data = await this.client.send(new QueryCommand(params));
-  //   const hasMorePages = data.LastEvaluatedKey !== undefined;
-  //   data.Items?.forEach((item) =>
-  //     items.push({
-  //       followerAlias: item[this.followerAliasAttr],
-  //       followerName: item[this.followerNameAttr],
-  //       followeeAlias: item[this.followeeAliasAttr],
-  //       followeeName: item[this.followeeNameAttr],
-  //     })
-  //   );
-  //   return { values: items, hasMorePages: hasMorePages };
-  // }
+    const items: SmallStatusDto[] = [];
+    const data = await this.client.send(new QueryCommand(params));
+    const hasMorePages = data.LastEvaluatedKey !== undefined;
+    data.Items?.forEach((item) =>
+      items.push({
+        alias: item[this.authorAliasAttr],
+        timestamp: item[this.timestampAttr],
+        post: item[this.postAttr],
+      })
+    );
+    return { values: items, hasMorePages: hasMorePages };
+  }
 
   // async getPageOfFollowers(
   //   pageSize: number,
