@@ -21,8 +21,8 @@ export class UserDaoDynamo implements UserDao {
   readonly lastNameAttr = "last_name";
   readonly passHashAttr = "password_hash";
   readonly imgUrlAttr = "img_url";
-  readonly followeecountAttr = "followee_count";
-  readonly followercountAttr = "follower_count";
+  readonly followeeCountAttr = "followee_count";
+  readonly followerCountAttr = "follower_count";
 
   public async putUser(user: UserDto, passwordHash: string): Promise<boolean> {
     const params = {
@@ -33,8 +33,8 @@ export class UserDaoDynamo implements UserDao {
         [this.lastNameAttr]: user.lastName,
         [this.imgUrlAttr]: user.imageUrl,
         [this.passHashAttr]: passwordHash,
-        [this.followeecountAttr]: 0,
-        [this.followercountAttr]: 0,
+        [this.followeeCountAttr]: 0,
+        [this.followerCountAttr]: 0,
       },
     };
     await this.client.send(new PutCommand(params));
@@ -75,9 +75,15 @@ export class UserDaoDynamo implements UserDao {
     return undefined;
   }
 
-  public async getFullUser(
-    alias: string
-  ): Promise<[UserDto, string] | undefined> {
+  public async getFullUser(alias: string): Promise<
+    | {
+        userDto: UserDto;
+        passHash: string;
+        followeeCount: number;
+        followerCount: number;
+      }
+    | undefined
+  > {
     const params = {
       TableName: this.tableName,
       Key: {
@@ -106,9 +112,29 @@ export class UserDaoDynamo implements UserDao {
         imageUrl: response.Item[this.imgUrlAttr],
       };
 
-      const passwordHash: string = response.Item[this.passHashAttr];
+      const passwordHash: string | undefined = response.Item[this.passHashAttr];
 
-      return [returnedUserDto, passwordHash];
+      const followeeCount: number | undefined =
+        response.Item[this.followeeCountAttr];
+
+      const followerCount: number | undefined =
+        response.Item[this.followerCountAttr];
+
+      if (
+        returnedUserDto === undefined ||
+        passwordHash === undefined ||
+        followeeCount === undefined ||
+        followerCount === undefined
+      ) {
+        return undefined;
+      }
+
+      return {
+        userDto: returnedUserDto,
+        passHash: passwordHash,
+        followeeCount: followeeCount,
+        followerCount: followerCount,
+      };
     }
 
     return undefined;

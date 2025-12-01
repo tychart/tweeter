@@ -9,6 +9,7 @@ import {
 import { Service } from "./Service";
 import { FollowDaoDynamo } from "../dao/dynamodb/FollowDaoDynamo";
 import { UserDaoDynamo } from "../dao/dynamodb/UserDaoDynamo";
+import { AuthDaoDynamo } from "../dao/dynamodb/AuthDaoDynamo";
 
 export class FollowService implements Service {
   public async loadMoreFollowees(
@@ -127,7 +128,22 @@ export class FollowService implements Service {
 
   public async getFolloweeCount(token: string, user: UserDto): Promise<number> {
     // TODO: Replace with the result of calling server
-    return FakeData.instance.getFolloweeCount(user.alias);
+    // return FakeData.instance.getFolloweeCount(user.alias);
+
+    const authDao = new AuthDaoDynamo();
+    const userDao = new UserDaoDynamo();
+
+    await authDao.validateAuth(token);
+
+    const fullUser = await userDao.getFullUser(user.alias);
+
+    if (fullUser === undefined) {
+      throw new Error(
+        `Error: bad-request - The followee count requested for user ${user.alias} was not found in the database, something might be wrong with the record`
+      );
+    }
+
+    return fullUser.followeeCount;
   }
 
   public async getFollowerCount(token: string, user: UserDto): Promise<number> {

@@ -34,24 +34,20 @@ export class UserService implements Service {
 
     const userDao = new UserDaoDynamo();
 
-    const fullUser: [UserDto, string] | undefined = await userDao.getFullUser(
-      alias
-    );
+    const fullUser = await userDao.getFullUser(alias);
 
     if (fullUser === undefined) {
       return [null, null];
     }
 
-    const [userDto, passHash] = fullUser;
-
-    if (await bcrypt.compare(password, passHash)) {
+    if (await bcrypt.compare(password, fullUser.passHash)) {
       const authToken = AuthToken.Generate();
 
       const authDao = new AuthDaoDynamo();
 
-      authDao.putAuth(authToken, userDto.alias);
+      await authDao.putAuth(authToken, fullUser.userDto.alias);
 
-      return [userDto, authToken];
+      return [fullUser.userDto, authToken];
     }
 
     throw new Error(

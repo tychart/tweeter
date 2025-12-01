@@ -92,34 +92,24 @@ export class AuthDaoDynamo implements AuthDao {
       );
     }
 
+    await this.updateAuthLastUsed(token);
+
     return [authToken, alias];
   }
 
-  // public async updateFollow(
-  //   followerAlias: string,
-  //   follower_name: string,
-  //   followeeAlias: string,
-  //   followee_name: string
-  // ): Promise<void> {
-  //   const params = {
-  //     TableName: this.tableName,
-  //     Key: {
-  //       [this.followerAliasAttr]: followerAlias,
-  //       [this.followeeAliasAttr]: followeeAlias,
-  //     },
-  //     ExpressionAttributeValues: {
-  //       ":follower_name": follower_name,
-  //       ":followee_name": followee_name,
-  //     },
-  //     UpdateExpression:
-  //       "SET " +
-  //       this.followerNameAttr +
-  //       " = :follower_name, " +
-  //       this.followeeNameAttr +
-  //       " = :followee_name",
-  //   };
-  //   await this.client.send(new UpdateCommand(params));
-  // }
+  public async updateAuthLastUsed(token: string): Promise<void> {
+    const params = {
+      TableName: this.tableName,
+      Key: {
+        [this.tokenAttr]: token,
+      },
+      ExpressionAttributeValues: {
+        ":current_time": Date.now(),
+      },
+      UpdateExpression: "SET " + this.lastUsedAttr + " = :current_time",
+    };
+    await this.client.send(new UpdateCommand(params));
+  }
 
   // public async deleteFollow(
   //   followerAlias: string,
