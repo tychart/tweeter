@@ -69,7 +69,7 @@ export class StatusService implements Service {
 
     await this.authDao.validateAuth(token);
 
-    this.statusDao.putPost(
+    await this.statusDao.putPost(
       newStatus.user.alias,
       newStatus.timestamp,
       newStatus.post
