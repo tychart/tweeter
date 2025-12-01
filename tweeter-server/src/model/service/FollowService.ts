@@ -28,6 +28,8 @@ export class FollowService implements Service {
     pageSize: number,
     lastItem: UserDto | null
   ): Promise<[UserDto[], boolean]> {
+    await this.authDao.validateAuth(token);
+
     const dataPage: DataPageDto<FollowDto> =
       await this.followDao.getPageOfFollowees(
         pageSize,
@@ -56,6 +58,8 @@ export class FollowService implements Service {
     pageSize: number,
     lastItem: UserDto | null
   ): Promise<[UserDto[], boolean]> {
+    await this.authDao.validateAuth(token);
+
     const dataPage: DataPageDto<FollowDto> =
       await this.followDao.getPageOfFollowers(
         pageSize,
