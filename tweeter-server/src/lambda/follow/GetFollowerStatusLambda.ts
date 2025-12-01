@@ -18,8 +18,8 @@ export const handler = async (
 
   const isFollower: boolean = await followService.getIsFollowerStatus(
     request.token,
-    request.user,
-    request.selectedUser
+    request.user.alias,
+    request.selectedUser.alias
   );
 
   return {

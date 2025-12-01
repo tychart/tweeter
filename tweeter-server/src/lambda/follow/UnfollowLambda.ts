@@ -18,7 +18,7 @@ export const handler = async (
 
   const followChangeSuccess: boolean = await followService.unfollow(
     request.token,
-    request.user
+    request.user.alias
   );
 
   return {

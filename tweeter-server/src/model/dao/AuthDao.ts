@@ -8,4 +8,6 @@ export interface AuthDao {
   getAuth(token: string): Promise<[AuthToken, string] | undefined>;
 
   validateAuth(token: string): Promise<[AuthToken, string]>;
+
+  deleteAuth(token: string): Promise<void>;
 }

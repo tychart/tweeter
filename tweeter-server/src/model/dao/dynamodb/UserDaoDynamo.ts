@@ -140,31 +140,60 @@ export class UserDaoDynamo implements UserDao {
     return undefined;
   }
 
-  // public async updateFollow(
-  //   followerAlias: string,
-  //   follower_name: string,
-  //   followeeAlias: string,
-  //   followee_name: string
+  public async updateFolloweeCount(
+    alias: string,
+    countChange: number
+  ): Promise<void> {
+    await this.updateUserCounts(alias, countChange, 0);
+  }
+
+  public async updateFollowerCount(
+    alias: string,
+    countChange: number
+  ): Promise<void> {
+    await this.updateUserCounts(alias, 0, countChange);
+  }
+
+  // private async updateUserCounts(
+  //   alias: string,
+  //   newFolloweeCount: number,
+  //   newFollowerCount: number
   // ): Promise<void> {
   //   const params = {
   //     TableName: this.tableName,
   //     Key: {
-  //       [this.followerAliasAttr]: followerAlias,
-  //       [this.followeeAliasAttr]: followeeAlias,
+  //       [this.aliasAttr]: alias,
   //     },
   //     ExpressionAttributeValues: {
-  //       ":follower_name": follower_name,
-  //       ":followee_name": followee_name,
+  //       ":new_followee_count": newFolloweeCount,
+  //       ":new_follower_count": newFollowerCount,
   //     },
   //     UpdateExpression:
   //       "SET " +
-  //       this.followerNameAttr +
-  //       " = :follower_name, " +
-  //       this.followeeNameAttr +
-  //       " = :followee_name",
+  //       this.followeeCountAttr +
+  //       " = :new_followee_count, " +
+  //       this.followerCountAttr +
+  //       " = :new_follower_count",
   //   };
   //   await this.client.send(new UpdateCommand(params));
   // }
+
+  private async updateUserCounts(
+    alias: string,
+    followeeDelta: number,
+    followerDelta: number
+  ): Promise<void> {
+    const params = {
+      TableName: this.tableName,
+      Key: { [this.aliasAttr]: alias },
+      ExpressionAttributeValues: {
+        ":followee_delta": followeeDelta, // +1 or -1
+        ":follower_delta": followerDelta, // +1 or -1
+      },
+      UpdateExpression: `ADD ${this.followeeCountAttr} :followee_delta, ${this.followerCountAttr} :follower_delta`,
+    };
+    await this.client.send(new UpdateCommand(params));
+  }
 
   // public async deleteFollow(
   //   followerAlias: string,

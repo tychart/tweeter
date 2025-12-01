@@ -87,6 +87,6 @@ export class UserService implements Service {
 
     const serverFacade = new ServerFacade();
 
-    await serverFacade.logout(authToken);
+    await serverFacade.logout({ token: authToken.token });
   }
 }

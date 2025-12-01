@@ -23,6 +23,10 @@ export interface UserDao {
     | undefined
   >;
 
+  updateFollowerCount(alias: string, countChange: number): Promise<void>;
+
+  updateFolloweeCount(alias: string, countChange: number): Promise<void>;
+
   // updateFollow(
   //   followerHandle: string,
   //   follower_name: string,

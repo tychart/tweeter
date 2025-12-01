@@ -92,10 +92,12 @@ export class UserService implements Service {
   }
 
   public async logout(token: string): Promise<boolean> {
-    // Pause so we can see the logging out message. Delete when the call to the server is implemented.
-    await new Promise((res) => setTimeout(res, 1000));
+    // // Pause so we can see the logging out message. Delete when the call to the server is implemented.
+    // await new Promise((res) => setTimeout(res, 1000));
+    // console.log("Just (fakely) logged out");
 
-    console.log("Just (fakely) logged out");
+    await this.authDao.validateAuth(token);
+    await this.authDao.deleteAuth(token);
 
     return true;
   }

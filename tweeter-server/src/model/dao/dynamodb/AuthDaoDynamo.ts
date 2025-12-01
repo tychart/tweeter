@@ -87,6 +87,7 @@ export class AuthDaoDynamo implements AuthDao {
       authToken.timestamp + LENGTH_OF_TIME_UNTIL_TOKEN_EXPIRES_MS <
       Date.now()
     ) {
+      // this.deleteAuth(token);
       throw new Error(
         `Error: unauthorized access - Token for user: ${alias} is expired`
       );
@@ -111,19 +112,15 @@ export class AuthDaoDynamo implements AuthDao {
     await this.client.send(new UpdateCommand(params));
   }
 
-  // public async deleteFollow(
-  //   followerAlias: string,
-  //   followeeAlias: string
-  // ): Promise<void> {
-  //   const params = {
-  //     TableName: this.tableName,
-  //     Key: {
-  //       [this.followerAliasAttr]: followerAlias,
-  //       [this.followeeAliasAttr]: followeeAlias,
-  //     },
-  //   };
-  //   await this.client.send(new DeleteCommand(params));
-  // }
+  public async deleteAuth(token: string): Promise<void> {
+    const params = {
+      TableName: this.tableName,
+      Key: {
+        [this.tokenAttr]: token,
+      },
+    };
+    await this.client.send(new DeleteCommand(params));
+  }
 
   // async getPageOfFollowees(
   //   pageSize: number,

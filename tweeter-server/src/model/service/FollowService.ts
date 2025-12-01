@@ -78,28 +78,34 @@ export class FollowService implements Service {
     return [users, dataPage.hasMorePages];
   }
 
-  public async getFolloweeCount(token: string, user: UserDto): Promise<number> {
+  public async getFolloweeCount(
+    token: string,
+    userAlias: string
+  ): Promise<number> {
     await this.authDao.validateAuth(token);
 
-    const fullUser = await this.userDao.getFullUser(user.alias);
+    const fullUser = await this.userDao.getFullUser(userAlias);
 
     if (fullUser === undefined) {
       throw new Error(
-        `Error: bad-request - The followee count requested for user ${user.alias} was not found in the database, something might be wrong with the record`
+        `Error: bad-request - The followee count requested for user ${userAlias} was not found in the database, something might be wrong with the record`
       );
     }
 
     return fullUser.followeeCount;
   }
 
-  public async getFollowerCount(token: string, user: UserDto): Promise<number> {
+  public async getFollowerCount(
+    token: string,
+    userAlias: string
+  ): Promise<number> {
     await this.authDao.validateAuth(token);
 
-    const fullUser = await this.userDao.getFullUser(user.alias);
+    const fullUser = await this.userDao.getFullUser(userAlias);
 
     if (fullUser === undefined) {
       throw new Error(
-        `Error: bad-request - The followee count requested for user ${user.alias} was not found in the database, something might be wrong with the record`
+        `Error: bad-request - The followee count requested for user ${userAlias} was not found in the database, something might be wrong with the record`
       );
     }
 
@@ -108,17 +114,17 @@ export class FollowService implements Service {
 
   public async getIsFollowerStatus(
     token: string,
-    user: UserDto,
-    selectedUser: UserDto
+    userAlias: string,
+    selectedUserAlias: string
   ): Promise<boolean> {
-    console.log("User: ", user);
-    console.log("Selected User: ", user);
+    console.log("userAlias: ", userAlias);
+    console.log("selectedUserAlias: ", selectedUserAlias);
 
     await this.authDao.validateAuth(token);
 
     const followItem: FollowDto | undefined = await this.followDao.getFollow(
-      user.alias,
-      selectedUser.alias
+      userAlias,
+      selectedUserAlias
     );
 
     console.log("FollowItem retrieved from database: ", followItem);
@@ -130,9 +136,9 @@ export class FollowService implements Service {
     }
   }
 
-  public async follow(token: string, userToFollow: UserDto): Promise<boolean> {
+  public async follow(token: string, aliasToFollow: string): Promise<boolean> {
     console.log("Input Token: ", token);
-    console.log("Input User To Follow: ", userToFollow);
+    console.log("Input User Alias To Follow: ", aliasToFollow);
 
     const auth = await this.authDao.validateAuth(token);
     const [authToken, alias] = auth;
@@ -140,17 +146,25 @@ export class FollowService implements Service {
     console.log("Retrieved Token From Authtable: ", authToken);
     console.log("Retrieved alias From Authtable: ", alias);
 
+    if (await this.getIsFollowerStatus(token, alias, aliasToFollow)) {
+      return false;
+    }
+    ///////// RIGHT HERE ///////////
+    // Ask about how to manage the async properly so that these database commands can be run parellel to one another instead of having to wait for each one to finish one right after the other.
     await this.followDao.putFollow({
-      followeeAlias: userToFollow.alias,
+      followeeAlias: aliasToFollow,
       followerAlias: alias,
     });
+
+    await this.userDao.updateFolloweeCount(alias, 1);
+    await this.userDao.updateFollowerCount(aliasToFollow, 1);
 
     return true;
   }
 
   public async unfollow(
     token: string,
-    userToUnfollow: UserDto
+    aliasToUnfollow: string
   ): Promise<boolean> {
     const auth = await this.authDao.validateAuth(token);
     const [authToken, alias] = auth;
@@ -158,10 +172,17 @@ export class FollowService implements Service {
     console.log("Retrieved Token From Authtable: ", authToken);
     console.log("Retrieved Alias From Authtable: ", alias);
 
+    if (!(await this.getIsFollowerStatus(token, alias, aliasToUnfollow))) {
+      return false;
+    }
+
     await this.followDao.deleteFollow({
-      followeeAlias: userToUnfollow.alias,
+      followeeAlias: aliasToUnfollow,
       followerAlias: alias,
     });
+
+    await this.userDao.updateFolloweeCount(alias, -1);
+    await this.userDao.updateFollowerCount(aliasToUnfollow, -1);
 
     return true;
   }
