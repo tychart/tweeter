@@ -2,13 +2,16 @@ import { AuthToken, Status, FakeData, StatusDto } from "tweeter-shared";
 import { Service } from "./Service";
 import { StatusDao, StatusDaoFactory } from "../dao/StatusDao";
 import { AuthDao } from "../dao/AuthDao";
+import { UserDao } from "../dao/UserDao";
 
 export class StatusService implements Service {
   private authDao: AuthDao;
+  private userDao: UserDao;
   private statusDao: StatusDao;
 
   constructor(statusDaoFactory: StatusDaoFactory) {
     this.authDao = statusDaoFactory.authDao;
+    this.userDao = statusDaoFactory.userDao;
     this.statusDao = statusDaoFactory.statusDao;
   }
 

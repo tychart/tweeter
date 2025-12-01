@@ -2,9 +2,11 @@
 
 import { AuthToken, UserDto } from "tweeter-shared";
 import { AuthDao } from "./AuthDao";
+import { UserDao } from "./UserDao";
 
 export interface StatusDaoFactory {
   authDao: AuthDao;
+  userDao: UserDao;
   statusDao: StatusDao;
 }
 
