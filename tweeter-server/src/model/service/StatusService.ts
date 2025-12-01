@@ -12,6 +12,7 @@ import { UserDao } from "../dao/UserDao";
 import { FollowDao } from "../dao/FollowDao";
 import { FeedDao, FeedDaoFactory } from "../dao/FeedDao";
 import { DataPageDto } from "tweeter-shared";
+import { SmallStatusDto } from "tweeter-shared";
 
 export class StatusService implements Service {
   private authDao: AuthDao;
@@ -35,7 +36,36 @@ export class StatusService implements Service {
     lastItem: StatusDto | null
   ): Promise<[StatusDto[], boolean]> {
     // TODO: Replace with the result of calling server
-    return this.getFakeData(lastItem, pageSize);
+    // return this.getFakeData(lastItem, pageSize);
+
+    await this.authDao.validateAuth(token);
+
+    const dataPage: DataPageDto<SmallStatusDto> =
+      await this.feedDao.getPageOfFeed(
+        pageSize,
+        userAlias,
+        lastItem?.timestamp
+      );
+
+    const statuses: StatusDto[] = [];
+
+    for (const item of dataPage.values) {
+      const userDto = await this.userDao.getUser(item.alias);
+
+      if (userDto !== undefined) {
+        const statusDto: StatusDto = {
+          user: userDto,
+          post: item.post,
+          timestamp: item.timestamp,
+        };
+
+        statuses.push(statusDto);
+      } else {
+        console.log("Could not find a user with alias of ", item.alias);
+      }
+    }
+
+    return [statuses, dataPage.hasMorePages];
   }
 
   public async loadMoreStoryItems(
