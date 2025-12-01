@@ -1,6 +1,14 @@
 // tweeter-shared/src/dao/FollowDao.ts
 
 import { FollowDto, DataPageDto } from "tweeter-shared";
+import { AuthDao } from "./AuthDao";
+import { UserDao } from "./UserDao";
+
+export interface FollowDaoFactory {
+  authDao: AuthDao;
+  userDao: UserDao;
+  followDao: FollowDao;
+}
 
 export interface FollowDao {
   // /** Count how many users a user is following. */

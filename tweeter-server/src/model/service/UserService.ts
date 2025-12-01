@@ -36,7 +36,9 @@ export class UserService implements Service {
     const fullUser = await this.userDao.getFullUser(alias);
 
     if (fullUser === undefined) {
-      return [null, null];
+      throw new Error(
+        `Error: unauthorized access - Username or Password is incorrect`
+      );
     }
 
     if (await bcrypt.compare(password, fullUser.passHash)) {

@@ -7,31 +7,38 @@ import {
   DataPageDto,
 } from "tweeter-shared";
 import { Service } from "./Service";
-import { FollowDaoDynamo } from "../dao/dynamodb/FollowDaoDynamo";
-import { UserDaoDynamo } from "../dao/dynamodb/UserDaoDynamo";
-import { AuthDaoDynamo } from "../dao/dynamodb/AuthDaoDynamo";
-import { Follow } from "tweeter-shared";
+import { AuthDao } from "../dao/AuthDao";
+import { FollowDao, FollowDaoFactory } from "../dao/FollowDao";
+import { UserDao } from "../dao/UserDao";
 
 export class FollowService implements Service {
+  private authDao: AuthDao;
+  private userDao: UserDao;
+  private followDao: FollowDao;
+
+  constructor(followDaoFactory: FollowDaoFactory) {
+    this.authDao = followDaoFactory.authDao;
+    this.userDao = followDaoFactory.userDao;
+    this.followDao = followDaoFactory.followDao;
+  }
+
   public async loadMoreFollowees(
     token: string,
     userAlias: string,
     pageSize: number,
     lastItem: UserDto | null
   ): Promise<[UserDto[], boolean]> {
-    const followDao = new FollowDaoDynamo();
-    const userDao = new UserDaoDynamo();
-
-    const dataPage: DataPageDto<FollowDto> = await followDao.getPageOfFollowees(
-      pageSize,
-      userAlias,
-      lastItem?.alias
-    );
+    const dataPage: DataPageDto<FollowDto> =
+      await this.followDao.getPageOfFollowees(
+        pageSize,
+        userAlias,
+        lastItem?.alias
+      );
 
     const users: UserDto[] = [];
 
     for (const item of dataPage.values) {
-      const userDto = await userDao.getUser(item.followeeAlias);
+      const userDto = await this.userDao.getUser(item.followeeAlias);
 
       if (userDto !== undefined) {
         users.push(userDto);
@@ -49,19 +56,17 @@ export class FollowService implements Service {
     pageSize: number,
     lastItem: UserDto | null
   ): Promise<[UserDto[], boolean]> {
-    const followDao = new FollowDaoDynamo();
-    const userDao = new UserDaoDynamo();
-
-    const dataPage: DataPageDto<FollowDto> = await followDao.getPageOfFollowers(
-      pageSize,
-      userAlias,
-      lastItem?.alias
-    );
+    const dataPage: DataPageDto<FollowDto> =
+      await this.followDao.getPageOfFollowers(
+        pageSize,
+        userAlias,
+        lastItem?.alias
+      );
 
     const users: UserDto[] = [];
 
     for (const item of dataPage.values) {
-      const userDto = await userDao.getUser(item.followerAlias);
+      const userDto = await this.userDao.getUser(item.followerAlias);
 
       if (userDto !== undefined) {
         users.push(userDto);
@@ -74,12 +79,9 @@ export class FollowService implements Service {
   }
 
   public async getFolloweeCount(token: string, user: UserDto): Promise<number> {
-    const authDao = new AuthDaoDynamo();
-    const userDao = new UserDaoDynamo();
+    await this.authDao.validateAuth(token);
 
-    await authDao.validateAuth(token);
-
-    const fullUser = await userDao.getFullUser(user.alias);
+    const fullUser = await this.userDao.getFullUser(user.alias);
 
     if (fullUser === undefined) {
       throw new Error(
@@ -91,12 +93,9 @@ export class FollowService implements Service {
   }
 
   public async getFollowerCount(token: string, user: UserDto): Promise<number> {
-    const authDao = new AuthDaoDynamo();
-    const userDao = new UserDaoDynamo();
+    await this.authDao.validateAuth(token);
 
-    await authDao.validateAuth(token);
-
-    const fullUser = await userDao.getFullUser(user.alias);
+    const fullUser = await this.userDao.getFullUser(user.alias);
 
     if (fullUser === undefined) {
       throw new Error(
@@ -115,12 +114,9 @@ export class FollowService implements Service {
     console.log("User: ", user);
     console.log("Selected User: ", user);
 
-    const authDao = new AuthDaoDynamo();
-    const followDao = new FollowDaoDynamo();
+    await this.authDao.validateAuth(token);
 
-    await authDao.validateAuth(token);
-
-    const followItem: FollowDto | undefined = await followDao.getFollow(
+    const followItem: FollowDto | undefined = await this.followDao.getFollow(
       user.alias,
       selectedUser.alias
     );
@@ -138,16 +134,13 @@ export class FollowService implements Service {
     console.log("Input Token: ", token);
     console.log("Input User To Follow: ", userToFollow);
 
-    const authDao = new AuthDaoDynamo();
-    const followDao = new FollowDaoDynamo();
-
-    const auth = await authDao.validateAuth(token);
+    const auth = await this.authDao.validateAuth(token);
     const [authToken, alias] = auth;
 
     console.log("Retrieved Token From Authtable: ", authToken);
     console.log("Retrieved alias From Authtable: ", alias);
 
-    await followDao.putFollow({
+    await this.followDao.putFollow({
       followeeAlias: userToFollow.alias,
       followerAlias: alias,
     });
@@ -159,16 +152,13 @@ export class FollowService implements Service {
     token: string,
     userToUnfollow: UserDto
   ): Promise<boolean> {
-    const authDao = new AuthDaoDynamo();
-    const followDao = new FollowDaoDynamo();
-
-    const auth = await authDao.validateAuth(token);
+    const auth = await this.authDao.validateAuth(token);
     const [authToken, alias] = auth;
 
     console.log("Retrieved Token From Authtable: ", authToken);
     console.log("Retrieved Alias From Authtable: ", alias);
 
-    await followDao.deleteFollow({
+    await this.followDao.deleteFollow({
       followeeAlias: userToUnfollow.alias,
       followerAlias: alias,
     });

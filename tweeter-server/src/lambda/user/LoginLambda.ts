@@ -6,7 +6,6 @@ import {
 } from "tweeter-shared";
 import { UserService } from "../../model/service/UserService";
 import { AuthDaoDynamo } from "../../model/dao/dynamodb/AuthDaoDynamo";
-import { FollowDaoDynamo } from "../../model/dao/dynamodb/FollowDaoDynamo";
 import { UserDaoDynamo } from "../../model/dao/dynamodb/UserDaoDynamo";
 import { UserDaoFactory } from "../../model/dao/UserDao";
 
