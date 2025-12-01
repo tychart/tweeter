@@ -1,7 +1,17 @@
 import { AuthToken, Status, FakeData, StatusDto } from "tweeter-shared";
 import { Service } from "./Service";
+import { StatusDao, StatusDaoFactory } from "../dao/StatusDao";
+import { AuthDao } from "../dao/AuthDao";
 
 export class StatusService implements Service {
+  private authDao: AuthDao;
+  private statusDao: StatusDao;
+
+  constructor(statusDaoFactory: StatusDaoFactory) {
+    this.authDao = statusDaoFactory.authDao;
+    this.statusDao = statusDaoFactory.statusDao;
+  }
+
   public async loadMoreFeedItems(
     token: string,
     userAlias: string,
@@ -51,8 +61,16 @@ export class StatusService implements Service {
     newStatus: StatusDto
   ): Promise<boolean> {
     // Pause so we can see the logging out message. Remove when connected to the server
-    await new Promise((f) => setTimeout(f, 2000));
-    console.log("Just (fakely) 'posted': ", newStatus.post);
+    // await new Promise((f) => setTimeout(f, 2000));
+    // console.log("Just (fakely) 'posted': ", newStatus.post);
+
+    await this.authDao.validateAuth(token);
+
+    this.statusDao.putPost(
+      newStatus.user.alias,
+      newStatus.timestamp,
+      newStatus.post
+    );
 
     return true;
 
