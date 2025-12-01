@@ -19,9 +19,6 @@ export class FollowService implements Service {
     pageSize: number,
     lastItem: UserDto | null
   ): Promise<[UserDto[], boolean]> {
-    // TODO: Replace with the result of calling server
-    // return this.getFakeData(lastItem, pageSize, userAlias);
-
     const followDao = new FollowDaoDynamo();
     const userDao = new UserDaoDynamo();
 
@@ -43,7 +40,6 @@ export class FollowService implements Service {
       }
     }
 
-    // Need to query the users in order to properly return a list of UserDTOs
     return [users, dataPage.hasMorePages];
   }
 
@@ -53,27 +49,14 @@ export class FollowService implements Service {
     pageSize: number,
     lastItem: UserDto | null
   ): Promise<[UserDto[], boolean]> {
-    // TODO: Replace with the result of calling server
-    // return this.getFakeData(lastItem, pageSize, userAlias);
-
     const followDao = new FollowDaoDynamo();
     const userDao = new UserDaoDynamo();
-
-    // console.log(
-    //   "loadMoreFollowers Was Called trying to retrieve followers of user: ",
-    //   userAlias
-    // );
 
     const dataPage: DataPageDto<FollowDto> = await followDao.getPageOfFollowers(
       pageSize,
       userAlias,
       lastItem?.alias
     );
-
-    // console.log(
-    //   "These were the users found that follow the afformentioned user: ",
-    //   dataPage.values
-    // );
 
     const users: UserDto[] = [];
 
@@ -87,50 +70,10 @@ export class FollowService implements Service {
       }
     }
 
-    // console.log(
-    //   "These were the users returned from querying the user table to get all their info: ",
-    //   users
-    // );
-
-    // Need to query the users in order to properly return a list of UserDTOs
     return [users, dataPage.hasMorePages];
   }
 
-  private async getFakeData(
-    lastItem: any,
-    pageSize: number,
-    userAlias: string
-  ): Promise<[UserDto[], boolean]> {
-    const [items, hasMore] = FakeData.instance.getPageOfUsers(
-      User.fromDto(lastItem),
-      pageSize,
-      userAlias
-    );
-
-    const dtos = items.map((user) => user.dto);
-
-    return [dtos, hasMore];
-  }
-
-  // private createDto(user: User): UserDto {
-  //   return {
-  //     firstName: user.firstName,
-  //     lastName: user.lastName,
-  //     alias: user.alias,
-  //     imageUrl: user.imageUrl,
-  //   };
-  // }
-
-  // private getDomainObject(dto: UserDto | null): User | null {
-  //   return dto == null
-  //     ? null
-  //     : new User(dto.firstName, dto.lastName, dto.alias, dto.imageUrl);
-  // }
-
   public async getFolloweeCount(token: string, user: UserDto): Promise<number> {
-    // TODO: Replace with the result of calling server
-    // return FakeData.instance.getFolloweeCount(user.alias);
-
     const authDao = new AuthDaoDynamo();
     const userDao = new UserDaoDynamo();
 
@@ -148,9 +91,6 @@ export class FollowService implements Service {
   }
 
   public async getFollowerCount(token: string, user: UserDto): Promise<number> {
-    // TODO: Replace with the result of calling server
-    // return FakeData.instance.getFollowerCount(user.alias);
-
     const authDao = new AuthDaoDynamo();
     const userDao = new UserDaoDynamo();
 
@@ -175,9 +115,6 @@ export class FollowService implements Service {
     console.log("User: ", user);
     console.log("Selected User: ", user);
 
-    // TODO: Replace with the result of calling server
-    // return FakeData.instance.isFollower();
-
     const authDao = new AuthDaoDynamo();
     const followDao = new FollowDaoDynamo();
 
@@ -198,11 +135,6 @@ export class FollowService implements Service {
   }
 
   public async follow(token: string, userToFollow: UserDto): Promise<boolean> {
-    // Pause so we can see the follow message. Remove when connected to the server
-    // await new Promise((f) => setTimeout(f, 2000));
-
-    // TODO: Call the server
-
     console.log("Input Token: ", token);
     console.log("Input User To Follow: ", userToFollow);
 
@@ -227,10 +159,6 @@ export class FollowService implements Service {
     token: string,
     userToUnfollow: UserDto
   ): Promise<boolean> {
-    // Pause so we can see the unfollow message. Remove when connected to the server
-    // await new Promise((f) => setTimeout(f, 2000));
-    // TODO: Call the server
-
     const authDao = new AuthDaoDynamo();
     const followDao = new FollowDaoDynamo();
 

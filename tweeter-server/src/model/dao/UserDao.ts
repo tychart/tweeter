@@ -5,10 +5,17 @@ import { UserDto } from "tweeter-shared";
 export interface UserDao {
   putUser(follow: UserDto, password_hash: string): Promise<boolean>;
 
-  getUser(
-    followerHandle: string,
-    followeeHandle: string
-  ): Promise<UserDto | undefined>;
+  getUser(alias: string): Promise<UserDto | undefined>;
+
+  getFullUser(alias: string): Promise<
+    | {
+        userDto: UserDto;
+        passHash: string;
+        followeeCount: number;
+        followerCount: number;
+      }
+    | undefined
+  >;
 
   // updateFollow(
   //   followerHandle: string,

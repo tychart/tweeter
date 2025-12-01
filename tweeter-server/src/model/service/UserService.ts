@@ -1,22 +1,27 @@
 import { Buffer } from "buffer";
 import bcrypt from "bcryptjs";
 
-import { AuthToken, User, FakeData, UserDto } from "tweeter-shared";
+import { AuthToken, UserDto } from "tweeter-shared";
 import { Service } from "./Service";
-import { UserDaoDynamo } from "../dao/dynamodb/UserDaoDynamo";
 import { AuthDao } from "../dao/AuthDao";
-import { AuthDaoDynamo } from "../dao/dynamodb/AuthDaoDynamo";
+import { DaoFactory } from "../dao/DaoFactory";
+import { UserDao } from "../dao/UserDao";
 
 export class UserService implements Service {
+  private authDao: AuthDao;
+  private userDao: UserDao;
+
+  constructor(daoFactory: DaoFactory) {
+    this.authDao = daoFactory.authDao;
+    this.userDao = daoFactory.userDao;
+  }
+
   public async getUser(token: string, alias: string): Promise<UserDto | null> {
-    // TODO: Replace with the result of calling server
-    // const retrievedUser = FakeData.instance.findUserByAlias(alias);
-    const userDao = new UserDaoDynamo();
-    const authDao = new AuthDaoDynamo();
+    await this.authDao.validateAuth(token);
 
-    await authDao.validateAuth(token);
-
-    const retrievedUser: UserDto | undefined = await userDao.getUser(alias);
+    const retrievedUser: UserDto | undefined = await this.userDao.getUser(
+      alias
+    );
 
     if (retrievedUser === undefined) {
       return null;
@@ -29,12 +34,7 @@ export class UserService implements Service {
     alias: string,
     password: string
   ): Promise<[UserDto | null, AuthToken | null]> {
-    // TODO: Replace with the result of calling the server
-    // const user = FakeData.instance.firstUser;
-
-    const userDao = new UserDaoDynamo();
-
-    const fullUser = await userDao.getFullUser(alias);
+    const fullUser = await this.userDao.getFullUser(alias);
 
     if (fullUser === undefined) {
       return [null, null];
@@ -43,9 +43,7 @@ export class UserService implements Service {
     if (await bcrypt.compare(password, fullUser.passHash)) {
       const authToken = AuthToken.Generate();
 
-      const authDao = new AuthDaoDynamo();
-
-      await authDao.putAuth(authToken, fullUser.userDto.alias);
+      await this.authDao.putAuth(authToken, fullUser.userDto.alias);
 
       return [fullUser.userDto, authToken];
     }
@@ -63,9 +61,6 @@ export class UserService implements Service {
     imageStringBase64: string,
     imageFileExtension: string
   ): Promise<[UserDto | null, AuthToken | null]> {
-    // TODO: Replace with the result of calling the server
-    // const user = FakeData.instance.firstUser;
-
     const userDto = {
       alias: alias,
       firstName: firstName,
@@ -80,22 +75,20 @@ export class UserService implements Service {
     const salt = await bcrypt.genSalt();
     const hashedPassword = await bcrypt.hash(password, salt);
 
-    const userDao = new UserDaoDynamo();
-    const addUserSuccess: boolean = await userDao.putUser(
+    const addUserSuccess: boolean = await this.userDao.putUser(
       userDto,
       hashedPassword
     );
 
     const authToken: AuthToken = AuthToken.Generate();
 
-    const authDao: AuthDao = new AuthDaoDynamo();
-    const addAuthSuccess: boolean = await authDao.putAuth(authToken, alias);
+    const addAuthSuccess: boolean = await this.authDao.putAuth(
+      authToken,
+      alias
+    );
 
     return [userDto, authToken];
   }
-
-  // In this file, he has login, register and logout, to see go to here:
-  // https://youtu.be/sZ2ezpJXXQo?t=2284
 
   public async logout(token: string): Promise<boolean> {
     // Pause so we can see the logging out message. Delete when the call to the server is implemented.
