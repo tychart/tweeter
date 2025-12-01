@@ -1,6 +1,12 @@
 // tweeter-shared/src/dao/FollowDao.ts
 
 import { UserDto } from "tweeter-shared";
+import { AuthDao } from "./AuthDao";
+
+export interface UserDaoFactory {
+  authDao: AuthDao;
+  userDao: UserDao;
+}
 
 export interface UserDao {
   putUser(follow: UserDto, password_hash: string): Promise<boolean>;

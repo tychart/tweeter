@@ -4,16 +4,15 @@ import bcrypt from "bcryptjs";
 import { AuthToken, UserDto } from "tweeter-shared";
 import { Service } from "./Service";
 import { AuthDao } from "../dao/AuthDao";
-import { DaoFactory } from "../dao/DaoFactory";
-import { UserDao } from "../dao/UserDao";
+import { UserDao, UserDaoFactory } from "../dao/UserDao";
 
 export class UserService implements Service {
   private authDao: AuthDao;
   private userDao: UserDao;
 
-  constructor(daoFactory: DaoFactory) {
-    this.authDao = daoFactory.authDao;
-    this.userDao = daoFactory.userDao;
+  constructor(userDaoFactory: UserDaoFactory) {
+    this.authDao = userDaoFactory.authDao;
+    this.userDao = userDaoFactory.userDao;
   }
 
   public async getUser(token: string, alias: string): Promise<UserDto | null> {
