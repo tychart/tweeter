@@ -9,7 +9,7 @@ import {
 import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
 
 import { StatusDao } from "../StatusDao";
-import { DataPageDto, StatusDto } from "tweeter-shared";
+import { DataPageDto, SmallStatusDto, StatusDto } from "tweeter-shared";
 
 export class StatusDaoDynamo implements StatusDao {
   private readonly client = DynamoDBDocumentClient.from(new DynamoDBClient());
@@ -61,6 +61,40 @@ export class StatusDaoDynamo implements StatusDao {
       timestamp: response.Item[this.timestampAttr],
       post: response.Item[this.postAttr],
     };
+  }
+
+  async getPageOfStory(
+    pageSize: number,
+    alias: string,
+    lastTimestamp?: number | undefined
+  ): Promise<DataPageDto<SmallStatusDto>> {
+    const params = {
+      KeyConditionExpression: this.aliasAttr + " = :v",
+      ExpressionAttributeValues: {
+        ":v": alias,
+      },
+      TableName: this.tableName,
+      Limit: pageSize,
+      ExclusiveStartKey:
+        lastTimestamp === undefined
+          ? undefined
+          : {
+              [this.aliasAttr]: alias,
+              [this.timestampAttr]: lastTimestamp,
+            },
+    };
+
+    const items: SmallStatusDto[] = [];
+    const data = await this.client.send(new QueryCommand(params));
+    const hasMorePages = data.LastEvaluatedKey !== undefined;
+    data.Items?.forEach((item) =>
+      items.push({
+        alias: item[this.aliasAttr],
+        timestamp: item[this.timestampAttr],
+        post: item[this.postAttr],
+      })
+    );
+    return { values: items, hasMorePages: hasMorePages };
   }
 
   // public async validateAuth(token: string): Promise<[AuthToken, string]> {

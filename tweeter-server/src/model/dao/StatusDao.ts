@@ -1,6 +1,11 @@
 // tweeter-shared/src/dao/FollowDao.ts
 
-import { AuthToken, UserDto } from "tweeter-shared";
+import {
+  AuthToken,
+  DataPageDto,
+  SmallStatusDto,
+  UserDto,
+} from "tweeter-shared";
 import { AuthDao } from "./AuthDao";
 import { UserDao } from "./UserDao";
 import { FollowDao } from "./FollowDao";
@@ -21,6 +26,12 @@ export interface StatusDao {
     token: string,
     timestamp: number
   ): Promise<{ alias: string; timestamp: number; post: string } | undefined>;
+
+  getPageOfStory(
+    pageSize: number,
+    alias: string,
+    lastTimestamp?: number | undefined
+  ): Promise<DataPageDto<SmallStatusDto>>;
 
   // validateAuth(token: string): Promise<[AuthToken, string]>;
 
