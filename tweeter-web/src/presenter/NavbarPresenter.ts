@@ -22,12 +22,16 @@ export class NavbarPresenter extends Presenter<NavbarView> {
   public async logOut(authToken: AuthToken | null) {
     const loggingOutToastId = this.view.displayInfoMessage("Logging Out...", 0);
 
-    this.doFailureReportingOperation(async () => {
-      await this.service.logout(authToken!);
-
-      this.view.deleteMessage(loggingOutToastId);
-      this.view.clearUserInfo();
-      this.view.navigate("/login");
-    }, "log user out");
+    this.doFailureReportingOperation(
+      async () => {
+        await this.service.logout(authToken!);
+      },
+      "log user out",
+      () => {
+        this.view.deleteMessage(loggingOutToastId);
+        this.view.clearUserInfo();
+        this.view.navigate("/login");
+      }
+    );
   }
 }
