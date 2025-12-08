@@ -146,6 +146,7 @@ export class FeedDaoDynamo implements FeedDao {
               [this.aliasAttr]: alias,
               [this.timestampAttr]: lastTimestamp,
             },
+      ScanIndexForward: false,
     };
 
     console.log("params: ", params);

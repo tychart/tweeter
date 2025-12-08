@@ -82,6 +82,7 @@ export class StatusDaoDynamo implements StatusDao {
               [this.aliasAttr]: alias,
               [this.timestampAttr]: lastTimestamp,
             },
+      ScanIndexForward: false,
     };
 
     const items: SmallStatusDto[] = [];
