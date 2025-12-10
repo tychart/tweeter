@@ -55,3 +55,5 @@ eeter-shared && cp -r /home/tychart/projects/tweeter/tweeter-shared/ .
 ### Specific Test Files
 
 > Run `npm test -- test/model/network/serverFacade.test.ts` inside of `./tweeter-web` to run just one test file
+
+For Milestone 4B Passoff: `npm test -- ./test/presenter/PostStatusPresenter4b.test.ts`
