@@ -686,7 +686,9 @@ Resources:
           KeyType: RANGE
       BillingMode: PROVISIONED
       ProvisionedThroughput:
+        # ReadCapacityUnits: 100
         ReadCapacityUnits: 1
+        # WriteCapacityUnits: 100
         WriteCapacityUnits: 1
       GlobalSecondaryIndexes:
         - IndexName: follow_index ##### TODO: Set the actual index name
@@ -696,7 +698,9 @@ Resources:
             - AttributeName: follower_alias ##### TODO: Set index sort key
               KeyType: RANGE
           ProvisionedThroughput:
+            # ReadCapacityUnits: 100
             ReadCapacityUnits: 1
+            # WriteCapacityUnits: 100
             WriteCapacityUnits: 1
           Projection:
             ProjectionType: ALL
@@ -770,7 +774,9 @@ Resources:
           KeyType: RANGE
       BillingMode: PROVISIONED
       ProvisionedThroughput:
+        # ReadCapacityUnits: 100
         ReadCapacityUnits: 1
+        # WriteCapacityUnits: 100
         WriteCapacityUnits: 1
 
   # #
