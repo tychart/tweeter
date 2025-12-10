@@ -1,4 +1,6 @@
 import {
+  BatchWriteCommand,
+  BatchWriteCommandInput,
   DeleteCommand,
   DynamoDBDocumentClient,
   GetCommand,
@@ -162,6 +164,52 @@ export class FeedDaoDynamo implements FeedDao {
       })
     );
     return { values: items, hasMorePages: hasMorePages };
+  }
+
+  async putBatchFeed(
+    authorAlias: string,
+    timestamp: number,
+    post: string,
+    followerAliases: string[]
+  ): Promise<boolean> {
+    let putRequestList = [];
+
+    // console.log(
+    //   "Got into batch feed with input: ",
+    //   authorAlias,
+    //   timestamp,
+    //   post,
+    //   followerAliases
+    // );
+
+    for (const alias of followerAliases) {
+      putRequestList.push({
+        PutRequest: {
+          Item: {
+            [this.aliasAttr]: alias,
+            [this.timestampAttr]: timestamp,
+            [this.authorAliasAttr]: authorAlias,
+            [this.postAttr]: post,
+          },
+        },
+      });
+    }
+
+    // console.log("Final putRequestList for batch write: ", putRequestList);
+
+    const params: BatchWriteCommandInput = {
+      RequestItems: {
+        [this.tableName]: putRequestList,
+      },
+    };
+
+    await this.client.send(new BatchWriteCommand(params));
+
+    // console.log(
+    //   "If you can see this, then that means that the await was proper for waiting until after the batch request was sent"
+    // );
+
+    return true;
   }
 
   // async getPageOfFollowers(

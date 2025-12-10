@@ -39,5 +39,12 @@ export interface FeedDao {
     lastTimestamp?: number | undefined
   ): Promise<DataPageDto<SmallStatusDto>>;
 
+  putBatchFeed(
+    authorAlias: string,
+    timestamp: number,
+    post: string,
+    followerAliases: string[]
+  ): Promise<boolean>;
+
   // deleteAuth(token: string): Promise<void>;
 }

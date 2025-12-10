@@ -221,4 +221,26 @@ export class StatusService implements Service {
       lastFollowerHandle = followerAliases[followerAliases.length - 1];
     }
   }
+
+  public async processFeedJobMessage(feedJobMessage: FeedJobMessage) {
+    if (feedJobMessage.followerAliases.length == 0) {
+      console.log("Zero followers' feeds to batch write");
+      return;
+    }
+
+    const MAX_BATCH = 25;
+
+    for (let i = 0; i < feedJobMessage.followerAliases.length; i += MAX_BATCH) {
+      const sublist = feedJobMessage.followerAliases.slice(i, i + MAX_BATCH);
+
+      // console.log(`Writing ${sublist.length} followers' feeds to DynamoDB`);
+
+      await this.feedDao.putBatchFeed(
+        feedJobMessage.authorAlias,
+        feedJobMessage.timestamp,
+        feedJobMessage.post,
+        sublist
+      );
+    }
+  }
 }
