@@ -87,8 +87,8 @@ if __name__ == "__main__":
     login_url = "https://sn17mfphg5.execute-api.us-west-2.amazonaws.com/prd/user/login"
     follow_url = "https://sn17mfphg5.execute-api.us-west-2.amazonaws.com/prd/follow/follow"
 
-    starting_suffix = 20
-    ending_suffix = 30
+    starting_suffix = 33
+    ending_suffix = 34
 
     for i in range(starting_suffix, ending_suffix + 1):
         register_response_json = register_user(register_url, i)
@@ -98,4 +98,6 @@ if __name__ == "__main__":
             register_response_json['token'], 
             register_response_json['user']['alias']
         )
+
+        print("--------------------------------------------------------")
 

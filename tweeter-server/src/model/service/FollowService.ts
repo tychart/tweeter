@@ -121,8 +121,8 @@ export class FollowService implements Service {
     userAlias: string,
     selectedUserAlias: string
   ): Promise<boolean> {
-    console.log("userAlias: ", userAlias);
-    console.log("selectedUserAlias: ", selectedUserAlias);
+    // console.log("userAlias: ", userAlias);
+    // console.log("selectedUserAlias: ", selectedUserAlias);
 
     await this.authDao.validateAuth(token);
 
@@ -131,7 +131,7 @@ export class FollowService implements Service {
       selectedUserAlias
     );
 
-    console.log("FollowItem retrieved from database: ", followItem);
+    // console.log("FollowItem retrieved from database: ", followItem);
 
     if (followItem === undefined) {
       return false;
@@ -141,14 +141,14 @@ export class FollowService implements Service {
   }
 
   public async follow(token: string, aliasToFollow: string): Promise<boolean> {
-    console.log("Input Token: ", token);
-    console.log("Input User Alias To Follow: ", aliasToFollow);
+    // console.log("Input Token: ", token);
+    // console.log("Input User Alias To Follow: ", aliasToFollow);
 
     const auth = await this.authDao.validateAuth(token);
     const [authToken, alias] = auth;
 
-    console.log("Retrieved Token From Authtable: ", authToken);
-    console.log("Retrieved alias From Authtable: ", alias);
+    // console.log("Retrieved Token From Authtable: ", authToken);
+    // console.log("Retrieved alias From Authtable: ", alias);
 
     if (await this.getIsFollowerStatus(token, alias, aliasToFollow)) {
       return false;
