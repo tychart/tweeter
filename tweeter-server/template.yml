@@ -608,6 +608,7 @@ Resources:
       FunctionName: TweeterFollowFetcher
       Handler: lambda/queues/FollowFetcherLambda.handler
       Policies: *commonPolicies
+      Timeout: 120
       Events:
         SQSTrigger:
           Type: SQS

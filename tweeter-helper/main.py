@@ -1,5 +1,15 @@
 import json
 import requests
+from concurrent.futures import ThreadPoolExecutor, as_completed
+
+
+class UserAlreadyExistsError(Exception):
+    pass
+
+
+class ApiError(Exception):
+    pass
+
 
 def send_post(url: str, payload: dict, headers: dict | None = None) -> requests.Response:
     """
@@ -26,10 +36,10 @@ def send_post(url: str, payload: dict, headers: dict | None = None) -> requests.
     response = requests.post(url, data=json.dumps(payload), headers=default_headers)
     return response
 
-def register_user(url, itter_suffix):
+def register_user(url, suffix):
     register_body = {
-        "userAlias": f"@loadtest{itter_suffix}",
-        "firstName": f"GenericUser{itter_suffix}",
+        "userAlias": f"@loadtest{suffix}",
+        "firstName": f"GenericUser{suffix}",
         "lastName": "Loadtesting",
         "password": "test",
         "imageStringBase64": "iVBORw0KGgoAAAABCAYAAAAfFcSJAAAACElEQVR",
@@ -38,30 +48,48 @@ def register_user(url, itter_suffix):
 
     response = send_post(url, register_body)
 
-    # print("Status:", response.status_code)
-    # print("Response:", response.text)
-
-    if (response.status_code == 200):
-        if ("already exists" not in response.text):
-            print(f"@loadtest{itter_suffix} was successfully registered")
-        else:
-            raise Exception(f"@loadtest{itter_suffix} already exists")
-    else:
-        print(f"@loadtest{itter_suffix} failed to register. Here is the response: {response}")
-        raise Exception(f"@loadtest{itter_suffix} failed to register. Here is the response: {response}")
+    if response.status_code != 200:
+        raise ApiError(
+            f"register {suffix}: HTTP {response.status_code}: {response.text}"
+        )
+    
+    # Check for "already exists" and signal that via a specific exception
+    if "already exists" in response.text:
+        raise UserAlreadyExistsError(f"@loadtest{suffix} already exists")
 
     # Safely parse JSON
     try:
-        response_json = response.json()  # automatically parses JSON
-        # print("Parsed JSON:", response_json)
-
-        # Access fields safely
-        # Example:
-        # print(response_json["data"])
+        data = response.json()
     except ValueError:
-        print("Response was not valid JSON")
+        raise ApiError(f"register {suffix}: response is not valid JSON: {response.text}")
 
-    return response_json
+    return data  # must contain token + user
+
+
+def login_user(url, suffix):
+    login_body = {
+        "userAlias": f"@loadtest{suffix}",
+        "password": "test",
+    }
+
+    response = send_post(url, login_body)
+
+    # print("Status:", response.status_code)
+    # print("Response:", response.text)
+
+    if response.status_code != 200:
+        raise ApiError(
+            f"login {suffix}: HTTP {response.status_code}: {response.text}"
+        )
+
+    # Safely parse JSON
+    try:
+        data = response.json()
+    except ValueError:
+        raise ApiError(f"login {suffix}: response is not valid JSON: {response.text}")
+
+    return data  # must contain token + user
+
 
 def follow_user(url, token, alias):
     follow_body = {
@@ -76,10 +104,46 @@ def follow_user(url, token, alias):
 
     response = send_post(url, follow_body)
 
-    if (response.status_code == 200):
-        print(f"{alias} successfully followed @test")
-    else:
-        print(f"{alias} failed to follow @test. Here is the response: {response}")
+    if response.status_code != 200:
+        raise ApiError(
+            f"follow {alias}: HTTP {response.status_code}: {response.text}"
+        )
+    
+    # Safely parse JSON
+    try:
+        data = response.json()
+    except ValueError:
+        raise ApiError(f"follow {suffix}: response is not valid JSON: {response.text}")
+
+    return data
+
+def worker(suffix, register_url, login_url, follow_url):
+    register_success = True
+    
+    # 1. Try to register
+    try:
+        reg = register_user(register_url, suffix)
+    except UserAlreadyExistsError:
+        # 2. If user already exists (e.g., from a previous run), just log in
+        reg = login_user(login_url, suffix)
+        register_success = False
+    
+    # Any other ApiError will bubble out and be reported by the main loop
+
+    # 3. Always try to follow
+    try:
+        data = follow_user(
+            follow_url,
+            reg["token"],
+            reg["user"]["alias"]
+        )
+        if (not register_success and data['success']):
+            print(f"User {reg["user"]["alias"]} already existed, but just now followed @test")
+    except KeyError as e:
+        print(f"Key Error: {str(e)}, this is the value of reg: {reg}")
+
+    return suffix
+
 
 
 if __name__ == "__main__":
@@ -87,17 +151,34 @@ if __name__ == "__main__":
     login_url = "https://sn17mfphg5.execute-api.us-west-2.amazonaws.com/prd/user/login"
     follow_url = "https://sn17mfphg5.execute-api.us-west-2.amazonaws.com/prd/follow/follow"
 
-    starting_suffix = 33
-    ending_suffix = 34
+    starting_suffix = 10000
+    ending_suffix = 11000
+    threads = 7  # adjust based on API limits
 
-    for i in range(starting_suffix, ending_suffix + 1):
-        register_response_json = register_user(register_url, i)
 
-        follow_user(
-            follow_url, 
-            register_response_json['token'], 
-            register_response_json['user']['alias']
-        )
+    # for i in range(starting_suffix, ending_suffix + 1):
+    #     register_response_json = register_user(register_url, i)
 
-        print("--------------------------------------------------------")
+    #     follow_user(
+    #         follow_url, 
+    #         register_response_json['token'], 
+    #         register_response_json['user']['alias']
+    #     )
+
+    with ThreadPoolExecutor(max_workers=threads) as executor:
+        futures = [
+            executor.submit(worker, i, register_url, login_url, follow_url)
+            for i in range(starting_suffix, ending_suffix + 1)
+        ]
+
+        for f in as_completed(futures):
+            try:
+                suffix = f.result()
+                print(f"Completed: {suffix}")
+            except Exception as e:
+                print("Exception caught in outer loop:", e)
+                # raise e
+
+
+        
 
