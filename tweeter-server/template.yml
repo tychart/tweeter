@@ -330,15 +330,6 @@ Resources:
           #   #
 
   #
-  # SQS Queues  (This will become relevant in Milestone 4. For M3, leave this section commented out.)
-  #
-
-  #   MyQueue:
-  #     Type: AWS::SQS::Queue
-  #     Properties:
-  #       QueueName: MyQueue
-
-  #
   # Lambda Layer (reused by all Lambda functions)
   #
   tweeterLayer:
@@ -575,6 +566,25 @@ Resources:
   # # TODO: ADD MORE WEB API LAMBDA DEFINITIONS HERE
   # #
 
+  #
+  # SQS Queues  (This will become relevant in Milestone 4. For M3, leave this section commented out.)
+  #
+
+  #   MyQueue:
+  #     Type: AWS::SQS::Queue
+  #     Properties:
+  #       QueueName: MyQueue
+
+  PostsQueue:
+    Type: AWS::SQS::Queue
+    Properties:
+      QueueName: PostsQueue
+
+  JobsQueue:
+    Type: AWS::SQS::Queue
+    Properties:
+      QueueName: JobsQueue
+
   # #
   # # SQS Queue Lambda Functions  (This will become relevant in Milestone 4. For M3, leave this section commented out.)
   # #
@@ -591,6 +601,34 @@ Resources:
   # #           Properties:
   # #             Queue: !GetAtt MyQueue.Arn
   # #             Enabled: true
+
+  TweeterFollowFetcher:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: TweeterFollowFetcher
+      Handler: lambda/queues/FollowFetcherLambda.handler
+      Policies: *commonPolicies
+      Events:
+        SQSTrigger:
+          Type: SQS
+          Properties:
+            Queue: !GetAtt PostsQueue.Arn
+            Enabled: true
+            BatchSize: 1
+
+  TweeterFeedWriteLambda:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: TweeterFeedWriteLambda
+      Handler: lambda/queues/FeedWriteLambda.handler
+      Policies: *commonPolicies
+      Events:
+        SQSTrigger:
+          Type: SQS
+          Properties:
+            Queue: !GetAtt JobsQueue.Arn
+            Enabled: true
+            BatchSize: 10
 
   # #
   # # DynamoDB Tables

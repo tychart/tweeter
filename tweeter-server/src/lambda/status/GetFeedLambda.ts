@@ -9,6 +9,7 @@ import { StatusDaoDynamo } from "../../model/dao/dynamodb/StatusDaoDynamo";
 import { UserDaoDynamo } from "../../model/dao/dynamodb/UserDaoDynamo";
 import { FeedDaoDynamo } from "../../model/dao/dynamodb/FeedDaoDynamo";
 import { FollowDaoDynamo } from "../../model/dao/dynamodb/FollowDaoDynamo";
+import { QueueDaoDynamo } from "../../model/dao/dynamodb/QueueDaoDynamo";
 
 export const handler = async (
   request: PagedStatusItemRequest
@@ -19,6 +20,7 @@ export const handler = async (
     followDao: new FollowDaoDynamo(),
     statusDao: new StatusDaoDynamo(),
     feedDao: new FeedDaoDynamo(),
+    queueDao: new QueueDaoDynamo(),
   };
 
   const statusService = new StatusService(statusDaoFactory);

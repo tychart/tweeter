@@ -13,6 +13,7 @@ import { FollowDao } from "../dao/FollowDao";
 import { FeedDao, FeedDaoFactory } from "../dao/FeedDao";
 import { DataPageDto } from "tweeter-shared";
 import { SmallStatusDto } from "tweeter-shared";
+import { FeedJobMessage, PostQueueMessage, QueueDao } from "../dao/QueueDao";
 
 export class StatusService implements Service {
   private authDao: AuthDao;
@@ -20,13 +21,15 @@ export class StatusService implements Service {
   private followDao: FollowDao;
   private statusDao: StatusDao;
   private feedDao: FeedDao;
+  private queueDao: QueueDao;
 
-  constructor(feedDaoFactory: FeedDaoFactory) {
-    this.authDao = feedDaoFactory.authDao;
-    this.userDao = feedDaoFactory.userDao;
-    this.followDao = feedDaoFactory.followDao;
-    this.statusDao = feedDaoFactory.statusDao;
-    this.feedDao = feedDaoFactory.feedDao;
+  constructor(statusDaoFactory: StatusDaoFactory) {
+    this.authDao = statusDaoFactory.authDao;
+    this.userDao = statusDaoFactory.userDao;
+    this.followDao = statusDaoFactory.followDao;
+    this.statusDao = statusDaoFactory.statusDao;
+    this.feedDao = statusDaoFactory.feedDao;
+    this.queueDao = statusDaoFactory.queueDao;
   }
 
   public async loadMoreFeedItems(
@@ -137,12 +140,9 @@ export class StatusService implements Service {
     token: string,
     newStatus: StatusDto
   ): Promise<boolean> {
-    // Pause so we can see the logging out message. Remove when connected to the server
-    // await new Promise((f) => setTimeout(f, 2000));
-    // console.log("Just (fakely) 'posted': ", newStatus.post);
-
     await this.authDao.validateAuth(token);
 
+    /// Update the story of the user who posted ///
     await this.statusDao.putPost(
       newStatus.user.alias,
       newStatus.timestamp,
@@ -151,33 +151,74 @@ export class StatusService implements Service {
 
     /// Update Everyone Else's Feed ///
 
-    const followers: FollowDto[] = [];
-    let hasMorePages = true;
+    const postQueueMessage: PostQueueMessage = {
+      authorAlias: newStatus.user.alias,
+      timestamp: newStatus.timestamp,
+      post: newStatus.post,
+    };
+
+    return await this.queueDao.putStatusPostsQueue(postQueueMessage);
+
+    //// Old, non paralellizing Code ////
+    // const followers: FollowDto[] = [];
+    // let hasMorePages = true;
+    // let lastFollowerHandle = undefined;
+
+    // while (hasMorePages) {
+    //   const dataPage: DataPageDto<FollowDto> =
+    //     await this.followDao.getPageOfFollowers(
+    //       25,
+    //       newStatus.user.alias,
+    //       lastFollowerHandle
+    //     );
+
+    //   hasMorePages = dataPage.hasMorePages;
+
+    //   for (let followerDto of dataPage.values) {
+    //     await this.feedDao.putPost(
+    //       followerDto.followerAlias,
+    //       newStatus.timestamp,
+    //       newStatus.user.alias,
+    //       newStatus.post
+    //     );
+    //   }
+
+    //   lastFollowerHandle =
+    //     dataPage.values[dataPage.values.length - 1]?.followerAlias;
+    // }
+
+    return true;
+  }
+
+  public async putJobFeedJobMessage(postQueueMessage: PostQueueMessage) {
     let lastFollowerHandle = undefined;
+    let hasMorePages = true;
 
     while (hasMorePages) {
-      const dataPage: DataPageDto<FollowDto> =
+      const dataPageDto: DataPageDto<FollowDto> =
         await this.followDao.getPageOfFollowers(
-          25,
-          newStatus.user.alias,
+          25, /// Maybe can increase this to 100 to improve speed?
+          postQueueMessage.authorAlias,
           lastFollowerHandle
         );
 
-      hasMorePages = dataPage.hasMorePages;
+      let followerAliases: string[] = [];
 
-      for (let followerDto of dataPage.values) {
-        await this.feedDao.putPost(
-          followerDto.followerAlias,
-          newStatus.timestamp,
-          newStatus.user.alias,
-          newStatus.post
-        );
+      for (let followerDto of dataPageDto.values) {
+        await followerAliases.push(followerDto.followerAlias);
       }
 
-      lastFollowerHandle =
-        dataPage.values[dataPage.values.length - 1]?.followerAlias;
-    }
+      const feedJobMessage: FeedJobMessage = {
+        authorAlias: postQueueMessage.authorAlias,
+        timestamp: postQueueMessage.timestamp,
+        post: postQueueMessage.post,
+        followerAliases: followerAliases,
+      };
 
-    return true;
+      await this.queueDao.putJobJobsQueue(feedJobMessage);
+
+      hasMorePages = dataPageDto.hasMorePages;
+      lastFollowerHandle = followerAliases[followerAliases.length - 1];
+    }
   }
 }

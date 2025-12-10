@@ -8,8 +8,9 @@ import {
 } from "tweeter-shared";
 import { AuthDao } from "./AuthDao";
 import { UserDao } from "./UserDao";
-import { FollowDao } from "./FollowDao";
 import { FeedDao } from "./FeedDao";
+import { QueueDao } from "./QueueDao";
+import { FollowDao } from "./FollowDao";
 
 export interface StatusDaoFactory {
   authDao: AuthDao;
@@ -17,6 +18,7 @@ export interface StatusDaoFactory {
   followDao: FollowDao;
   statusDao: StatusDao;
   feedDao: FeedDao;
+  queueDao: QueueDao;
 }
 
 export interface StatusDao {

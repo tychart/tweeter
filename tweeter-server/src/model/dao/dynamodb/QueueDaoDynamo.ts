@@ -1,0 +1,197 @@
+import { SQSClient, SendMessageCommand } from "@aws-sdk/client-sqs";
+
+import { PostQueueMessage, FeedJobMessage, QueueDao } from "../QueueDao";
+
+export class QueueDaoDynamo implements QueueDao {
+  private readonly sqsClient = new SQSClient({});
+
+  readonly POSTS_QUEUE_URL =
+    "https://sqs.us-west-2.amazonaws.com/345594594463/PostsQueue";
+  readonly JOBS_QUEUE_URL =
+    "https://sqs.us-west-2.amazonaws.com/345594594463/JobsQueue";
+
+  // readonly tokenAttr = "token";
+  // readonly aliasAttr = "alias";
+  // readonly lastUsedAttr = "last_used";
+
+  public async putStatusPostsQueue(
+    postQueueMessage: PostQueueMessage
+  ): Promise<boolean> {
+    const params = {
+      QueueUrl: this.POSTS_QUEUE_URL,
+      MessageBody: JSON.stringify(postQueueMessage),
+    };
+    await this.sqsClient.send(new SendMessageCommand(params));
+
+    return true;
+  }
+
+  public async putJobJobsQueue(newJob: FeedJobMessage): Promise<boolean> {
+    const params = {
+      QueueUrl: this.JOBS_QUEUE_URL,
+      MessageBody: JSON.stringify(newJob),
+    };
+
+    await this.sqsClient.send(new SendMessageCommand(params));
+
+    return true;
+  }
+
+  //   public async getAuth(
+  //     token: string
+  //   ): Promise<[AuthToken, string] | undefined> {
+  //     const params = {
+  //       TableName: this.tableName,
+  //       Key: {
+  //         [this.tokenAttr]: token,
+  //       },
+  //     };
+
+  //     // console.log("This is a test to see before stuff");
+
+  //     // console.log("Params being sent for getting a user: ", params);
+
+  //     // const getCommand = ;
+
+  //     // console.log("This is the get command: ", getCommand);
+
+  //     const response = await this.client.send(new GetCommand(params));
+
+  //     // console.log("Response from dynamo for getting a user: ", response);
+  //     // console.log("This is a test to see stuff");
+
+  //     if (response.Item) {
+  //       const returnedAuthToken = new AuthToken(
+  //         response.Item[this.tokenAttr],
+  //         response.Item[this.lastUsedAttr]
+  //       );
+
+  //       return [returnedAuthToken, response.Item[this.aliasAttr]];
+  //     }
+
+  //     return undefined;
+  //   }
+
+  //   public async validateAuth(token: string): Promise<[AuthToken, string]> {
+  //     const LENGTH_OF_TIME_UNTIL_TOKEN_EXPIRES_MS = 10 * 60 * 1000;
+
+  //     const authReturn = await this.getAuth(token);
+
+  //     if (!authReturn) {
+  //       throw new Error(
+  //         `Error: unauthorized access - Authtoken provided was not found in the database`
+  //       );
+  //     }
+
+  //     const [authToken, alias] = authReturn;
+
+  //     if (
+  //       authToken.timestamp + LENGTH_OF_TIME_UNTIL_TOKEN_EXPIRES_MS <
+  //       Date.now()
+  //     ) {
+  //       // this.deleteAuth(token);
+  //       throw new Error(
+  //         `Error: unauthorized access - Token for user: ${alias} is expired`
+  //       );
+  //     }
+
+  //     await this.updateAuthLastUsed(token);
+
+  //     return [authToken, alias];
+  //   }
+
+  //   public async updateAuthLastUsed(token: string): Promise<void> {
+  //     const params = {
+  //       TableName: this.tableName,
+  //       Key: {
+  //         [this.tokenAttr]: token,
+  //       },
+  //       ExpressionAttributeValues: {
+  //         ":current_time": Date.now(),
+  //       },
+  //       UpdateExpression: "SET " + this.lastUsedAttr + " = :current_time",
+  //     };
+  //     await this.client.send(new UpdateCommand(params));
+  //   }
+
+  //   public async deleteAuth(token: string): Promise<void> {
+  //     const params = {
+  //       TableName: this.tableName,
+  //       Key: {
+  //         [this.tokenAttr]: token,
+  //       },
+  //     };
+  //     await this.client.send(new DeleteCommand(params));
+  //   }
+
+  //   // async getPageOfFollowees(
+  //   //   pageSize: number,
+  //   //   followerAlias: string,
+  //   //   followeeAlias?: string | undefined
+  //   // ): Promise<DataPageDto<FollowDto>> {
+  //   //   const params = {
+  //   //     KeyConditionExpression: this.followerAliasAttr + " = :v",
+  //   //     ExpressionAttributeValues: {
+  //   //       ":v": followerAlias,
+  //   //     },
+  //   //     TableName: this.tableName,
+  //   //     Limit: pageSize,
+  //   //     ExclusiveStartKey:
+  //   //       followeeAlias === undefined
+  //   //         ? undefined
+  //   //         : {
+  //   //             [this.followerAliasAttr]: followerAlias,
+  //   //             [this.followeeAliasAttr]: followeeAlias,
+  //   //           },
+  //   //   };
+
+  //   //   const items: FollowDto[] = [];
+  //   //   const data = await this.client.send(new QueryCommand(params));
+  //   //   const hasMorePages = data.LastEvaluatedKey !== undefined;
+  //   //   data.Items?.forEach((item) =>
+  //   //     items.push({
+  //   //       followerAlias: item[this.followerAliasAttr],
+  //   //       followerName: item[this.followerNameAttr],
+  //   //       followeeAlias: item[this.followeeAliasAttr],
+  //   //       followeeName: item[this.followeeNameAttr],
+  //   //     })
+  //   //   );
+  //   //   return { values: items, hasMorePages: hasMorePages };
+  //   // }
+
+  //   // async getPageOfFollowers(
+  //   //   pageSize: number,
+  //   //   followeeAlias: string,
+  //   //   lastfollowerAlias?: string | undefined
+  //   // ): Promise<DataPageDto<FollowDto>> {
+  //   //   const params = {
+  //   //     KeyConditionExpression: this.followeeAliasAttr + " = :v",
+  //   //     ExpressionAttributeValues: {
+  //   //       ":v": followeeAlias,
+  //   //     },
+  //   //     TableName: this.tableName,
+  //   //     IndexName: this.indexName,
+  //   //     Limit: pageSize,
+  //   //     ExclusiveStartKey:
+  //   //       lastfollowerAlias === undefined
+  //   //         ? undefined
+  //   //         : {
+  //   //             [this.followerAliasAttr]: lastfollowerAlias,
+  //   //             [this.followeeAliasAttr]: followeeAlias,
+  //   //           },
+  //   //   };
+
+  //   //   const items: FollowDto[] = [];
+  //   //   const data = await this.client.send(new QueryCommand(params));
+  //   //   const hasMorePages = data.LastEvaluatedKey !== undefined;
+  //   //   data.Items?.forEach((item) =>
+  //   //     items.push({
+  //   //       followerAlias: item[this.followerAliasAttr],
+  //   //       followerName: item[this.followerNameAttr],
+  //   //       followeeAlias: item[this.followeeAliasAttr],
+  //   //       followeeName: item[this.followeeNameAttr],
+  //   //     })
+  //   //   );
+  //   //   return { values: items, hasMorePages: hasMorePages };
+  //   // }
+}

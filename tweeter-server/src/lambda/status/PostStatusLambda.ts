@@ -7,6 +7,7 @@ import { StatusDaoFactory } from "../../model/dao/StatusDao";
 import { FeedDaoDynamo } from "../../model/dao/dynamodb/FeedDaoDynamo";
 import { Follow } from "tweeter-shared";
 import { FollowDaoDynamo } from "../../model/dao/dynamodb/FollowDaoDynamo";
+import { QueueDaoDynamo } from "../../model/dao/dynamodb/QueueDaoDynamo";
 
 export const handler = async (
   request: PostStatusRequest
@@ -17,6 +18,7 @@ export const handler = async (
     followDao: new FollowDaoDynamo(),
     statusDao: new StatusDaoDynamo(),
     feedDao: new FeedDaoDynamo(),
+    queueDao: new QueueDaoDynamo(),
   };
 
   const statusService = new StatusService(statusDaoFactory);
